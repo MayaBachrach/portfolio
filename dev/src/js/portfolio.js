@@ -232,6 +232,7 @@ function showRoute() {
 
   stopDetailVideos();
   detailMedia.replaceChildren(...media.map(mediaFigure));
+  detailMedia.querySelectorAll(".project-media-sheet").forEach(sheet => changePencilOutline(sheet, "--panel-accent"));
   if (!dialog.open) {
     panelOrigin = "translate(0, 0) scale(.2)";
     dialog.showModal();
@@ -241,19 +242,21 @@ function showRoute() {
       const y = openingRect.top + openingRect.height / 2 - bounds.top - bounds.height / 2;
       panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(openingRect.width / bounds.width, openingRect.height / bounds.height)})`;
       openingAnimation = dialog.animate([
-        { transform: panelOrigin, opacity: .7, borderRadius: "40%" },
+        { transform: panelOrigin, opacity: 0 },
         { transform: "translate(0, 0) scale(1)", opacity: 1 },
-      ], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
+      ], { duration: 360, easing: "cubic-bezier(.22,1,.36,1)" });
     }
     openingRect = null;
   }
-  detailMedia.querySelectorAll(".project-media-sheet").forEach(sheet => changePencilOutline(sheet, "--panel-accent"));
   dialog.querySelector(".project-page-scroll").scrollTop = 0;
   projectTitle.focus({ preventScroll: true });
 }
 
 async function closeProject() {
   if (closingAnimation || !dialog.open) return;
+  // Capture the presented pose before cancelling an interrupted entrance.
+  const presented = getComputedStyle(dialog);
+  const startPose = { transform: presented.transform, opacity: presented.opacity };
   openingAnimation?.cancel();
   openingAnimation = undefined;
   const revision = routeRevision;
@@ -270,9 +273,9 @@ async function closeProject() {
   }
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const animation = dialog.animate([
-      { transform: "translateY(0) scale(1)", opacity: 1 },
+      startPose,
       { transform: panelOrigin, opacity: 0 },
-    ], { duration: 400, easing: "cubic-bezier(.4,0,.2,1)" });
+    ], { duration: 280, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
     closingAnimation = animation;
     try {
       await animation.finished;
@@ -285,6 +288,7 @@ async function closeProject() {
   }
   if (revision !== routeRevision || route !== location.hash) return;
   dialog.close();
+  dialog.getAnimations().forEach(animation => animation.cancel());
   if (openedFromCard) {
     history.back();
   } else {
