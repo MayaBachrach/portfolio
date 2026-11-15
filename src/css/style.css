@@ -972,7 +972,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   left: 3%;
   direction: rtl;
 }
-.carousel-tile:focus-visible, #close-project:focus-visible {
+#close-project:focus-visible {
   outline: 3px solid var(--page-text);
   outline-offset: 4px;
 }
@@ -1024,7 +1024,8 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   mix-blend-mode: screen;
 }
 :root[data-theme="markers"] .carousel-tile[data-ink="dark"] > img { filter: none; }
-.carousel-tile:focus-visible { border-radius: 24% 29% 21% 27%; }
+.carousel-tile:focus-visible { outline: none; }
+.carousel-tile:focus-visible .star-label { border-bottom: 3px solid currentColor; }
 
 
 
@@ -1041,7 +1042,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 }
 .carousel-window { padding-block: calc(var(--carousel-size) * .28 + 10px) 1rem; }
 .carousel-tile .star-label { bottom: calc(100% + 5px); }
-.contact-scene { height: clamp(22rem, 63svh, 39rem); min-height: 0; }
+.contact-scene { height: 100dvh; min-height: 100svh; }
 @media (max-width: 48rem) {
   .carousel { --carousel-size: min(68vw, 22rem, 44svh); }
 }
@@ -1055,7 +1056,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 /* Use the same star cutout and hand-lettering as the link that opened the work. */
 .project-page {
   width: min(94vw, 58rem);
-  border: 2px solid var(--page-text);
+  border: 0;
   border-radius: 1.4rem .6rem 1.1rem .8rem / .65rem 1.3rem .65rem 1rem;
 }
 .project-page-header {
