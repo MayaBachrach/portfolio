@@ -134,18 +134,24 @@ async function run() {
       const stars = starPage.locator('.carousel-tile:not([tabindex="-1"])');
       const ids = await stars.evaluateAll(links => [...new Set(links.map(link => link.hash))]);
       assert.equal(ids.length, 9);
-      assert.equal(await stars.locator('img').count(), 14);
-      assert.equal(await stars.and(starPage.locator('[data-movement]')).count(), 8);
+      assert.equal(await stars.locator('img').count(), 10);
+      assert.equal(await stars.locator('.star-action-scene').count(), 10);
       assert(await stars.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth)));
       const target = stars.filter({ has: starPage.locator('img[src*="graphic-mayu.webp"]') });
       if (mobile) {
-        assert.equal(await target.locator('img').evaluate(image => getComputedStyle(image).filter), 'brightness(0) invert(1)');
+        assert.equal(await target.locator('.star-action-scene').evaluate(scene => getComputedStyle(scene).filter), 'brightness(0) invert(1)');
         await target.focus();
         await target.tap();
       } else {
         await target.focus();
         await starPage.keyboard.press('Enter');
       }
+      const gestures = await stars.locator('.star-action-gesture').evaluateAll(layers =>
+        layers.map(layer => ({
+          name: getComputedStyle(layer).animationName,
+          stationary: getComputedStyle(layer.closest('svg').querySelector('use')).transform === 'none',
+        })));
+      assert(gestures.every(gesture => gesture.stationary && gesture.name === (mobile ? 'none' : 'star-gesture')));
       const panel = starPage.locator('#project-page');
       await panel.waitFor({ state: 'visible' });
       assert.equal(await panel.getAttribute('data-project'), 'graphic');
@@ -181,7 +187,7 @@ async function run() {
       }
       await starPage.close();
     }
-    console.log('PASS nine star destinations, 14 decoded images, keyboard/touch, focus restoration and reduced motion');
+    console.log('PASS nine star destinations, ten individual action scenes, keyboard/touch, focus restoration and reduced motion');
 
 
     const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });

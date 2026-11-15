@@ -1,17 +1,17 @@
 (() => {
 // Each star links to a project and can animate an illustration or a frame sequence.
 const carouselItems = [
-  { projectId: "mix", type: "image", src: "./assets/illustrations/producer-frame-1.svg", frames: [1, 2, 3].map(frame => "./assets/illustrations/producer-frame-" + frame + ".svg"), frameDuration: 280, alt: "Music producer, illustration by Maya" },
-  { projectId: "mix", type: "image", src: "./assets/illustrations/dj-mayu.png", frames: ["./assets/illustrations/dj-frame-1.svg", "./assets/illustrations/dj-frame-2.svg", "./assets/illustrations/dj-frame-3.svg"], frameDuration: 280, alt: "DJ Mayu, איור של מאיה" },
+  { projectId: "mix", src: "./assets/illustrations/producer-mayu.webp", action: "producer" },
+  { projectId: "mix", src: "./assets/illustrations/dj-mayu.webp", action: "dj" },
 
-  { projectId: "social", src: "./assets/illustrations/social-mayu.webp", handDrawnMotion: true },
-  { projectId: "graphic", src: "./assets/illustrations/graphic-mayu.webp", handDrawnMotion: true },
-  { projectId: "performance", src: "./assets/illustrations/performance-mayu.webp", handDrawnMotion: true },
-  { projectId: "creative", src: "./assets/illustrations/creative-mayu.webp", handDrawnMotion: true },
-  { projectId: "set-design", src: "./assets/illustrations/set-design-mayu.webp", handDrawnMotion: true },
-  { projectId: "animation", src: "./assets/illustrations/animation-mayu.webp", handDrawnMotion: true },
-  { projectId: "app-development", src: "./assets/illustrations/app-development-mayu.webp", handDrawnMotion: true },
-  { projectId: "storytelling", src: "./assets/illustrations/storytelling-mayu.webp", handDrawnMotion: true },
+  { projectId: "social", src: "./assets/illustrations/social-mayu.webp", action: "social" },
+  { projectId: "graphic", src: "./assets/illustrations/graphic-mayu.webp", action: "graphic" },
+  { projectId: "performance", src: "./assets/illustrations/performance-mayu.webp", action: "performance" },
+  { projectId: "creative", src: "./assets/illustrations/creative-mayu.webp", action: "creative" },
+  { projectId: "set-design", src: "./assets/illustrations/set-design-mayu.webp", action: "set-design" },
+  { projectId: "animation", src: "./assets/illustrations/animation-mayu.webp", action: "animation" },
+  { projectId: "app-development", src: "./assets/illustrations/app-development-mayu.webp", action: "app-development" },
+  { projectId: "storytelling", src: "./assets/illustrations/storytelling-mayu.webp", action: "storytelling" },
 ];
 const carouselSettings = { minimumTiles: 6, secondsPerTile: 7 };
 
@@ -376,5 +376,18 @@ const projects = [
 ];
 
 
-window.PORTFOLIO_CONTENT = { carouselItems, carouselSettings, projects };
+const starActions = {
+  "social": {"cut":"M141 143L156 139 171 146 170 160 151 163 137 159Z","pivot":[143,156],"travel":[0,2.7],"angle":3,"marks":"M197 137l10-8m-8 14l13-2m-15 8l11 5","duration":1550},
+  "graphic": {"cut":"M74 110L92 104 104 113 100 130 115 139 109 159 89 158 78 172 69 171 69 152Z","pivot":[106,147],"travel":[5,1],"angle":-6,"marks":"M78 167q7-3 15 0l6 2m-19 2l16 4","duration":1750},
+  "performance": {"cut":"M103 67L127 65 130 79 119 98 101 107 87 109 86 100 96 87Z","pivot":[89,103],"travel":[3,-2],"angle":-7,"marks":"M123 63l6-9m-1 14l11-4m-10 10l10 2","duration":1420},
+  "creative": {"cut":"M129 198L163 193 170 185 190 184 197 204 187 229 133 237 113 229 115 210Z","pivot":[175,202],"travel":[-7,0],"angle":-4,"marks":"M116 201l-1-8m4 10l4-7m-12 7l-7-4","duration":1750},
+  "set-design": {"cut":"M84 145L89 145 92 155 95 159 91 168 81 168 78 160 82 153Z","pivot":[86,146],"travel":[0,0],"angle":26,"marks":"M100 154l6-5m-5 10l7-1","duration":1540},
+  "animation": {"cut":"M137 110L149 97 169 98 170 116 152 128 143 122Z","pivot":[145,118],"travel":[-3,-1],"angle":-18,"marks":"M168 98q4-8 8-10m-5 14l10-4","duration":1040},
+  "app-development": {"cut":"M101 167L118 163 128 164 132 174 117 182 102 182 98 177Z","pivot":[123,170],"travel":[-2,3],"angle":-6,"marks":"M70 149l8 10-6-1-3 5z M66 148l-4-3m5 8l-4 2","duration":1500},
+  "storytelling": {"cut":"M129 125Q148 109 173 105L178 116Q147 119 129 139L123 138Z","pivot":[129,132],"travel":[-9,-3],"angle":-25,"marks":"M132 130q-7-22-31-28 10 12 19 29m24-22q12-5 21-5","duration":1850},
+  "dj": {"cut":"M47 173L58 158 75 160 77 175 70 190 48 194 42 187Z","pivot":[69,167],"travel":[4,2],"angle":-9,"marks":"M45 204q12 10 30 4l-5-4m11-11q-11-5-23-2","duration":1150},
+  "producer": {"cut":"M132 140L144 130 157 131 166 139 161 153 146 156 133 151Z","pivot":[151,136],"travel":[1,3],"angle":7,"marks":"M150 164l4 5m6-7l7 3m-10-20l4-6","duration":1230},
+};
+
+window.PORTFOLIO_CONTENT = { carouselItems, carouselSettings, projects, starActions };
 })();
