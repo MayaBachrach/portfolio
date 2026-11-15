@@ -26,9 +26,12 @@
 - These are restrained vector overlays on the supplied illustrations, not full redrawn character animation. Camera/typing finger excursions are subtle at phone size.
 - Graphic design, performance and animation/book-flip gestures remain limited; creative uses a join accent with stationary puzzle pieces after a moving reconstruction failed the anatomy review.
 - Storytelling page outline lifts, bends and crosses the spine, then fades over the original page stack. It does not include a fully occluding page or a hand following the sheet. A dedicated drawn sequence is still needed to meet the full requested page-turn standard.
-- Hands and original raster art can differ slightly in stroke weight. Dark bright-star legibility uses a hard canvas-colored edge, without blur; it still merits real-device review.
+- Hands and original raster art can differ slightly in stroke weight. Dark illustrations use light ink only, with no shadow or dark edge.
 - Real iOS/Safari touch, audio, pinch zoom and reduced-motion changes during an in-progress intro were not verified.
 - This preview improves engineering and removes the detached bitmap motion, but is not claimed to meet every animation-art-direction acceptance criterion. Do not promote wholesale to production on that basis.
 
 ## Follow-up reflow correction
 A 320px viewport with 200% root text exposed contact-grid min-content overflow. The contact grid now uses minmax(0,1fr), icon links wrap and copyright text can reflow. A regression assertion covers this width.
+
+## User corrections — 2026-11-16
+Restored the original filled difference-blend cursor; removed the unrequested outline cursor and dark drop-shadows on drawings. Panel entrance now animates only transform/opacity, prepares media frames before motion and takes 360ms. Exit takes 280ms, begins at the currently presented pose when interrupted and holds its final pose until the dialog closes, avoiding snap-to-full-size flashes.

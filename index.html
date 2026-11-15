@@ -438,7 +438,7 @@ html::-webkit-scrollbar, .project-page-scroll::-webkit-scrollbar { display:none;
 /* One scrollbar only: retain scrolling while suppressing browser tracks. */
 html, body, .project-page, .project-page-scroll { scrollbar-width:none !important; }
 html::-webkit-scrollbar, body::-webkit-scrollbar, .project-page::-webkit-scrollbar, .project-page-scroll::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
-.difference-cursor { position:fixed; top:0; left:0; width:25px; height:25px; border-radius:50%; background:var(--page-text); mix-blend-mode:normal; pointer-events:none; z-index:2147483647; opacity:0; transform:translate(-50%,-50%); transition:width 180ms ease,height 180ms ease,opacity 120ms ease; }
+.difference-cursor { position:fixed; top:0; left:0; width:25px; height:25px; border-radius:50%; background:#fff; mix-blend-mode:difference; pointer-events:none; z-index:2147483647; opacity:0; transform:translate(-50%,-50%); transition:width 180ms ease,height 180ms ease,opacity 120ms ease; }
 .difference-cursor.is-hovering { width:45px; height:45px; }
 @media(hover:hover) and (pointer:fine) { html.circle-cursor-active, .circle-cursor-active * { cursor:none !important; } }
 /* Separate desktop and phone composition, preserving Maya's visual language. */
@@ -1204,9 +1204,6 @@ body:has(.project-page[open]) .star-action-gesture, body:has(.project-page[open]
 .carousel-tile:focus-visible .star-label { text-decoration:underline; text-underline-offset:.2em; }
 .project-page .media-item img { height:auto; }
 
-/* A hard ink edge uses only the existing dark canvas and light ink. */
-:root[data-theme="markers"] .star-action-scene { filter:brightness(0) invert(1) drop-shadow(.65px 0 0 #151419) drop-shadow(-.65px 0 0 #151419); }
-@media (pointer:fine) { .difference-cursor { background:transparent; border:2px solid var(--page-text); } }
 
 .panel-star:has(.star-action-scene) > img { visibility:hidden; }
 
@@ -1326,7 +1323,7 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
   });
 })();
 </script>
-<script src="./assets/runtime/app.1d3c3a2a58.js" defer></script>
+<script src="./assets/runtime/app.a0e915f4d8.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#content">דילוג לתוכן</a>
