@@ -1,4 +1,4 @@
-const { carouselItems, carouselSettings, projects } = window.PORTFOLIO_CONTENT;
+const { carouselItems, carouselSettings, projects, starActions } = window.PORTFOLIO_CONTENT;
 
 const dialog = document.querySelector("#project-page");
 const detailMedia = document.querySelector("#detail-media");
@@ -323,6 +323,34 @@ function refreshCarouselColors() {
   });
 }
 
+function renderStarAction(tile, item, index) {
+  const action = starActions[item.action];
+  if (!action) return;
+  const prefix = "star-art-" + index;
+  const full = "M0 0H240V240H0Z ";
+  const { cut, pivot, travel, angle, marks, duration } = action;
+  tile.dataset.action = item.action;
+  tile.style.setProperty("--action-pivot", pivot[0] / 2.4 + "% " + pivot[1] / 2.4 + "%");
+  tile.style.setProperty("--action-x", travel[0] / 2.4 + "%");
+  tile.style.setProperty("--action-y", travel[1] / 2.4 + "%");
+  tile.style.setProperty("--action-angle", angle + "deg");
+  tile.style.setProperty("--action-duration", duration + "ms");
+  tile.insertAdjacentHTML("beforeend", `
+    <svg class="star-action-scene" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
+      <defs>
+        <image id="${prefix}" href="${item.src}" width="240" height="240"/>
+        <clipPath id="${prefix}-background"><path clip-rule="evenodd" d="${full + cut}"/></clipPath>
+        <clipPath id="${prefix}-gesture"><path d="${cut}"/></clipPath>
+      </defs>
+      <use href="#${prefix}" clip-path="url(#${prefix}-background)"/>
+      <g class="star-action-gesture">
+        <use href="#${prefix}" clip-path="url(#${prefix}-gesture)"/>
+      </g>
+      <path class="star-action-marks" d="${marks}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `);
+}
+
 const frameTimers = [];
 const frameReadiness = [];
 function renderCarousel() {
@@ -341,7 +369,6 @@ function renderCarousel() {
       const project = projects.find(project => project.id === item.projectId);
       const tile = element("a", "carousel-tile");
       tile.href = "#project/" + project.id;
-      if (item.handDrawnMotion) tile.dataset.movement = item.projectId;
       tile.setAttribute("aria-haspopup", "dialog");
       tile.setAttribute("aria-controls", dialog.id);
       tile.setAttribute("aria-label", project.title);
@@ -367,7 +394,7 @@ function renderCarousel() {
       } else {
         media.alt = "";
       }
-      if (item.handDrawnMotion && group === 0 && index < carouselItems.length) frameReadiness.push(media.decode());
+      if (item.action && group === 0 && index < carouselItems.length) frameReadiness.push(media.decode());
       // Decode once, then reveal already-loaded layers; never replace a playing frame URL.
       if (item.frames?.length > 1) {
         const layers = item.frames.map((src, frame) => {
@@ -391,6 +418,7 @@ function renderCarousel() {
         }).catch(() => { /* Keep the first frame visible if another frame cannot load. */ });
       }
       tile.append(media);
+      renderStarAction(tile, item, group * count + index);
       const label = element("span", "star-label star-label-" + (index % 4));
       window.renderPortfolioLettering(label, project.title);
       label.setAttribute("aria-hidden", "true");
