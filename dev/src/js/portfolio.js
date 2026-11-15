@@ -1,4 +1,4 @@
-const { carouselItems, carouselSettings, projects, starActions } = window.PORTFOLIO_CONTENT;
+const { carouselItems, carouselSettings, projects } = window.PORTFOLIO_CONTENT;
 
 const dialog = document.querySelector("#project-page");
 const detailMedia = document.querySelector("#detail-media");
@@ -132,6 +132,9 @@ function mediaFigure(item) {
   } else {
     media.alt = item.alt;
     media.loading = "lazy";
+    media.decoding = "async";
+    media.width = item.width || 1200;
+    media.height = item.height || 900;
   }
   const sheet = element("div", "project-media-sheet");
   sheet.append(media);
@@ -166,15 +169,18 @@ function updatePanelAccent() {
     ? document.querySelector(`a[href="#project/${projectId}"]`)
     : null);
   const theme = getComputedStyle(source || document.documentElement);
-  const accent = theme.getPropertyValue(openingStar ? "--carousel-color" : source ? "--card-accent" : "--accent-1").trim();
+  const accent = theme.getPropertyValue(source?.classList.contains("carousel-tile") ? "--carousel-color" : source ? "--card-accent" : "--accent-1").trim();
   dialog.style.setProperty("--panel-accent", accent);
 }
 
+let openingAnimation;
 let closingAnimation;
 let routeRevision = 0;
 
 function showRoute() {
   routeRevision++;
+  openingAnimation?.cancel();
+  openingAnimation = undefined;
   closingAnimation?.cancel();
   closingAnimation = undefined;
   projectTitle.dataset.letteringDirection = document.documentElement.lang === "en" ? "ltr" : "rtl";
@@ -202,6 +208,9 @@ function showRoute() {
     if (tile) {
       stamp.style.setProperty("--stamp-shape", tile.style.getPropertyValue("--star-shape"));
       stamp.querySelector("img").src = tile.querySelector("img").src;
+      stamp.querySelector("svg")?.remove();
+      const art = carouselItems.find(item => tile.querySelector("img").src.endsWith(item.src.replace(/^\.\//, "")));
+      if (art?.action) stamp.insertAdjacentHTML("beforeend", window.portfolioActionScene(art, "panel-scene"));
     }
     window.renderPortfolioLettering(projectTitle, project.title);
     document.querySelector("#project-description").textContent = project.description;
@@ -231,7 +240,7 @@ function showRoute() {
       const x = openingRect.left + openingRect.width / 2 - bounds.left - bounds.width / 2;
       const y = openingRect.top + openingRect.height / 2 - bounds.top - bounds.height / 2;
       panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(openingRect.width / bounds.width, openingRect.height / bounds.height)})`;
-      dialog.animate([
+      openingAnimation = dialog.animate([
         { transform: panelOrigin, opacity: .7, borderRadius: "40%" },
         { transform: "translate(0, 0) scale(1)", opacity: 1 },
       ], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
@@ -245,6 +254,8 @@ function showRoute() {
 
 async function closeProject() {
   if (closingAnimation || !dialog.open) return;
+  openingAnimation?.cancel();
+  openingAnimation = undefined;
   const revision = routeRevision;
   const route = location.hash;
   stopDetailVideos();
@@ -324,31 +335,9 @@ function refreshCarouselColors() {
 }
 
 function renderStarAction(tile, item, index) {
-  const action = starActions[item.action];
-  if (!action) return;
-  const prefix = "star-art-" + index;
-  const full = "M0 0H240V240H0Z ";
-  const { cut, pivot, travel, angle, marks, duration } = action;
-  tile.dataset.action = item.action;
-  tile.style.setProperty("--action-pivot", pivot[0] / 2.4 + "% " + pivot[1] / 2.4 + "%");
-  tile.style.setProperty("--action-x", travel[0] / 2.4 + "%");
-  tile.style.setProperty("--action-y", travel[1] / 2.4 + "%");
-  tile.style.setProperty("--action-angle", angle + "deg");
-  tile.style.setProperty("--action-duration", duration + "ms");
-  tile.insertAdjacentHTML("beforeend", `
-    <svg class="star-action-scene" viewBox="0 0 240 240" aria-hidden="true" focusable="false">
-      <defs>
-        <image id="${prefix}" href="${item.src}" width="240" height="240"/>
-        <clipPath id="${prefix}-background"><path clip-rule="evenodd" d="${full + cut}"/></clipPath>
-        <clipPath id="${prefix}-gesture"><path d="${cut}"/></clipPath>
-      </defs>
-      <use href="#${prefix}" clip-path="url(#${prefix}-background)"/>
-      <g class="star-action-gesture">
-        <use href="#${prefix}" clip-path="url(#${prefix}-gesture)"/>
-      </g>
-      <path class="star-action-marks" d="${marks}" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/>
-    </svg>
-  `);
+ if (!item.action) return;
+ tile.dataset.action = item.action;
+ tile.insertAdjacentHTML('beforeend', window.portfolioActionScene(item, 'scene-'+index));
 }
 
 const frameTimers = [];
@@ -372,7 +361,10 @@ function renderCarousel() {
       tile.setAttribute("aria-haspopup", "dialog");
       tile.setAttribute("aria-controls", dialog.id);
       tile.setAttribute("aria-label", project.title);
-      if (group || index >= carouselItems.length) tile.tabIndex = -1;
+      if (group || index >= carouselItems.length) {
+        tile.tabIndex = -1;
+        tile.setAttribute("aria-hidden", "true");
+      }
       tile.addEventListener("click", event => {
         if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         previousFocus = openingStar = tile;
@@ -387,6 +379,8 @@ function renderCarousel() {
       tile.style.setProperty("--carousel-color", `var(--accent-${colorIndices[index] + 1})`);
       const media = element(item.type === "video" ? "video" : "img");
       media.src = item.frames?.[0] || item.src;
+      media.width = 480; media.height = 480;
+      media.decoding = "async";
       if (item.type === "video") {
         media.muted = true;
         media.loop = true;
@@ -432,7 +426,7 @@ function renderCarousel() {
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const carousel = document.querySelector(".carousel");
 function updateCarouselMotion() {
-  const paused = reducedMotion.matches || document.hidden;
+  const paused = reducedMotion.matches || document.hidden || dialog.open || carousel.dataset.offscreen === "true";
   carousel.classList.toggle("is-paused", paused);
   carousel.querySelectorAll("video").forEach(video => {
     if (paused) video.pause();
@@ -441,6 +435,11 @@ function updateCarouselMotion() {
 }
 reducedMotion.addEventListener("change", updateCarouselMotion);
 document.addEventListener("visibilitychange", updateCarouselMotion);
+new MutationObserver(updateCarouselMotion).observe(dialog, { attributes: true, attributeFilter: ["open"] });
+new IntersectionObserver(([entry]) => {
+  carousel.dataset.offscreen = String(!entry.isIntersecting);
+  updateCarouselMotion();
+}).observe(carousel);
 
 const greeting = document.querySelector(".greeting");
 const greetingText = greeting.querySelector("span");
@@ -538,6 +537,30 @@ addEventListener("resize", scheduleTouchHighlight);
 touchLayout.addEventListener("change", scheduleTouchHighlight);
 updateTouchHighlight();
 renderCarousel();
+// Native SVG timelines run only while their tile is visible and unobscured.
+const visibleScenes = new Set();
+function syncScenes() {
+ const paused = reducedMotion.matches || document.hidden || dialog.open || !!carousel.querySelector(":focus-visible");
+ document.querySelectorAll('.star-action-scene').forEach(scene => {
+  if (paused || !visibleScenes.has(scene)) scene.pauseAnimations();
+  else scene.unpauseAnimations();
+  if (reducedMotion.matches) scene.setCurrentTime(0);
+ });
+}
+const sceneObserver = new IntersectionObserver(entries => {
+ for (const entry of entries) {
+  const scene = entry.target.querySelector('.star-action-scene');
+  if (entry.isIntersecting) visibleScenes.add(scene); else visibleScenes.delete(scene);
+ }
+ syncScenes();
+}, { root: document.querySelector('.carousel-window'), threshold: .05 });
+document.querySelectorAll('.carousel-tile[data-action]').forEach(tile => sceneObserver.observe(tile));
+document.addEventListener('visibilitychange', syncScenes);
+reducedMotion.addEventListener('change', syncScenes);
+new MutationObserver(syncScenes).observe(dialog, { attributes: true, attributeFilter: ['open'] });
+carousel.addEventListener("focusin", syncScenes);
+carousel.addEventListener("focusout", () => queueMicrotask(syncScenes));
+syncScenes();
 updateCarouselMotion();
 showRoute();
 new ResizeObserver(fitGreeting).observe(greeting);
@@ -561,7 +584,7 @@ function playHeadingIntro() {
  const words=english?[]:[document.querySelector(".canva-zot"),document.querySelector(".name")];
  words.forEach((word,index)=>animations.push(pop(word,letters.length*step+90+index*190,210)));
  root.classList.remove("intro-pending");
- Promise.all(animations.map(animation=>animation.finished)).then(()=>{
+ Promise.all(animations.map(animation=>animation.finished)).catch(()=>{}).then(()=>{
   animations.forEach(animation=>animation.cancel());
   introPlaying=false;fitGreeting();
  });
@@ -569,7 +592,7 @@ function playHeadingIntro() {
 async function revealPreparedPage() {
  const elapsed = performance.now() - (window.portfolioLoadingStarted || 0);
  const minimum = Math.max(0, 1200 - elapsed);
- const assets = [document.fonts.ready, ...frameReadiness, ...[...document.querySelectorAll(".skating-frame")].map(image=>image.decode())];
+ const assets = [document.fonts.ready, ...frameReadiness];
  let assetsReadyAt=performance.now(), failedAssets=0, assetWaitTimedOut=false;
  const assetsReady=Promise.allSettled(assets).then(results=>{assetsReadyAt=performance.now();failedAssets=results.filter(result=>result.status==="rejected").length;});
  let timeout;
@@ -588,71 +611,86 @@ async function revealPreparedPage() {
 }
 revealPreparedPage();
 
-// One motion controller keeps autoplay, dragging, and touch reading focus in sync.
+// One scheduled frame, cached geometry; no perpetual work while hidden or covered.
 (() => {
- const viewport=document.querySelector(".carousel-window"), track=document.querySelector("#carousel-track");
- const touch=matchMedia("(hover:none), (pointer:coarse)");
- let onScreen=true;
- new IntersectionObserver(([entry])=>{ onScreen=entry.isIntersecting; }).observe(viewport);
- let offset=0, last=0, focusCheck=0, drag=null, suppressClick=false, speed=1, momentum=0;
- const wrap=()=>{const width=track.scrollWidth/2;if(width)offset=((offset%width)+width)%width;};
- const paint=()=>track.style.transform="translate3d("+(-offset)+"px,0,0)";
- const centerOf = rect => rect.left + rect.width / 2;
- function centerStar(tile) {
-  momentum = 0;
-  viewport.scrollLeft = 0;
-  offset += centerOf(tile.getBoundingClientRect()) - centerOf(viewport.getBoundingClientRect());
-  paint();
- }
- viewport.addEventListener("focusin", event => {
-  if (event.target.matches(".carousel-tile:focus-visible")) centerStar(event.target);
+ const viewport=document.querySelector('.carousel-window'), track=document.querySelector('#carousel-track');
+ const tiles=[...track.querySelectorAll('.carousel-tile')];
+ const touch=matchMedia('(hover:none), (pointer:coarse)');
+ let offset=0,last=0,frame=0,loop=0,initialized=false,visible=true,drag=null,momentum=0,suppressUntil=0;
+ const wrap=()=>{if(loop)offset=((offset%loop)+loop)%loop;};
+ const paint=()=>{track.style.transform='translate3d('+(-offset)+'px,0,0)';};
+ const blocked=()=>!visible||document.hidden||dialog.open||reducedMotion.matches;
+ const reading=()=>track.querySelector(':focus-visible')||(!touch.matches&&track.matches(':hover'));
+ function stop(){cancelAnimationFrame(frame);frame=0;last=0;}
+ function wake(){if(!frame&&!blocked()&&!drag&&(!reading()||Math.abs(momentum)>.5))frame=requestAnimationFrame(tick);}
+ function sync(){stop();wake();}
+ function measure(){loop=track.scrollWidth/2;if(!initialized&&loop){offset=tiles[1].offsetLeft+tiles[1].offsetWidth/2-viewport.clientWidth/2;initialized=true;}wrap();paint();wake();}
+ new ResizeObserver(measure).observe(viewport);
+ new IntersectionObserver(([entry])=>{visible=entry.isIntersecting;sync();}).observe(viewport);
+ new MutationObserver(sync).observe(dialog,{attributes:true,attributeFilter:['open']});
+ document.addEventListener('visibilitychange',sync);
+ reducedMotion.addEventListener('change',()=>{momentum=0;sync();});
+ viewport.addEventListener('pointerenter',sync);
+ viewport.addEventListener('pointerleave',wake);
+ viewport.addEventListener('focusin',event=>{
+  stop();momentum=0;
+  const tile=event.target.closest('.carousel-tile');
+  if(tile&&tile.matches(':focus-visible')){
+   viewport.scrollLeft=0;
+   const a=tile.getBoundingClientRect(),b=viewport.getBoundingClientRect();
+   offset+=a.left+a.width/2-b.left-b.width/2;paint();
+  }
  });
- viewport.addEventListener("pointerdown",e=>{
-  if(e.button!==0)return;
-  momentum=0;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,time:e.timeStamp,velocity:0,moved:false};
+ viewport.addEventListener('focusout',()=>queueMicrotask(wake));
+ viewport.addEventListener('pointerdown',e=>{
+  if(e.button!==0||!e.isPrimary)return;
+  stop();momentum=0;
+  drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,time:e.timeStamp,velocity:0,moved:false};
  });
- viewport.addEventListener("pointermove",e=>{
+ viewport.addEventListener('pointermove',e=>{
   if(!drag||drag.id!==e.pointerId)return;
   const dx=e.clientX-drag.x,dy=e.clientY-drag.y;
-  if(!drag.moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=null;return;}
-  if(!drag.moved&&Math.abs(dx)>7){drag.moved=true;viewport.setPointerCapture(e.pointerId);viewport.classList.add("is-dragging");}
-  if(drag.moved){const elapsed=Math.max(8,e.timeStamp-drag.time);const velocity=-(e.clientX-drag.lastX)/elapsed*1000;drag.velocity=drag.velocity*.3+velocity*.7;offset-=e.clientX-drag.lastX;wrap();paint();e.preventDefault();}
+  if(!drag.moved&&Math.abs(dy)>Math.abs(dx)&&Math.abs(dy)>8){drag=null;wake();return;}
+  if(!drag.moved&&Math.abs(dx)>7){drag.moved=true;viewport.setPointerCapture(e.pointerId);viewport.classList.add('is-dragging');}
+  if(drag.moved){
+   const dt=Math.max(8,e.timeStamp-drag.time);
+   drag.velocity=drag.velocity*.3-(e.clientX-drag.lastX)/dt*700;
+   offset-=e.clientX-drag.lastX;wrap();paint();e.preventDefault();
+  }
   drag.lastX=e.clientX;drag.time=e.timeStamp;
  });
- function end(e){if(!drag)return;suppressClick=drag.moved;momentum=drag.moved&&e.type!=="pointercancel"&&e.timeStamp-drag.time<100?Math.max(-3000,Math.min(3000,drag.velocity)):0;if(viewport.hasPointerCapture(e.pointerId))viewport.releasePointerCapture(e.pointerId);drag=null;viewport.classList.remove("is-dragging");setTimeout(()=>suppressClick=false,0);}
- viewport.addEventListener("pointerup",end);viewport.addEventListener("pointercancel",end);
- viewport.addEventListener("click",e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation();}},true);
- function tick(now){
-  const dt=Math.min((now-last)/1000||0,.05);last=now;
-  if (!onScreen || document.hidden) { requestAnimationFrame(tick); return; }
-  let readingStrength=0;
-  if(touch.matches){
-   if(now-focusCheck>24){
-    focusCheck=now;
-    const center = innerWidth / 2;
-    const zone = innerWidth * .20;
-    const measurements = Array.from(track.querySelectorAll(".carousel-tile"), tile => {
-     const bounds = tile.getBoundingClientRect();
-     return { tile, distance: Math.abs(bounds.left + bounds.width / 2 - center) };
-    });
-    for (const { tile, distance: d } of measurements) {
-     const raw=Math.max(0,1-d/zone);
-     const strength=(!drag&&Math.abs(momentum)<100)?raw*raw*(3-2*raw):0;
-     tile.style.setProperty("--reading-strength",strength.toFixed(4));
-     tile.classList.toggle("is-reading",strength>0);
-    }
-   }
-
-  }
-  const paused=document.hidden||reducedMotion.matches||dialog.open||track.querySelector(":focus-visible")||(!touch.matches&&track.matches(":hover"))||!!drag;
-  readingStrength=Number(track.querySelector(".is-reading")?.style.getPropertyValue("--reading-strength")||0);
-  const target=1-.45*readingStrength;speed+=(target-speed)*Math.min(1,dt*9);
-  const loop=track.scrollWidth/2;
-  if(!paused&&loop){const duration=parseFloat(track.style.getPropertyValue("--carousel-duration"))||70;offset+=loop/duration*dt*speed;wrap();paint();}
-  if(!document.hidden&&!reducedMotion.matches&&!dialog.open&&!drag&&Math.abs(momentum)>.5){offset+=momentum*dt;momentum*=Math.exp(-3.2*dt);wrap();paint();}
-  requestAnimationFrame(tick);
+ function end(e){
+  if(!drag||drag.id!==e.pointerId)return;
+  const d=drag;drag=null;
+  if(d.moved)suppressUntil=performance.now()+500;
+  momentum=d.moved&&e.type==='pointerup'&&e.timeStamp-d.time<100?Math.max(-2600,Math.min(2600,d.velocity)):0;
+  if(viewport.hasPointerCapture(e.pointerId))viewport.releasePointerCapture(e.pointerId);
+  viewport.classList.remove('is-dragging');wake();
  }
- requestAnimationFrame(tick);
+ window.addEventListener('pointerup',end);
+ window.addEventListener('pointercancel',end);
+ viewport.addEventListener('lostpointercapture',end);
+ viewport.addEventListener('click',e=>{
+  if(e.detail!==0&&performance.now()<suppressUntil){e.preventDefault();e.stopImmediatePropagation();}
+ },true);
+ // Arrow keys move between the original links, without exposing loop duplicates.
+ viewport.addEventListener('keydown',e=>{
+  if(!['ArrowLeft','ArrowRight','Home','End'].includes(e.key))return;
+  const links=tiles.filter(t=>t.tabIndex===0),i=links.indexOf(document.activeElement);
+  if(i<0)return;
+  e.preventDefault();
+  const n=e.key==='Home'?0:e.key==='End'?links.length-1:(i+(e.key==='ArrowRight'?1:-1)+links.length)%links.length;
+  links[n].focus({preventScroll:true});
+ });
+ function tick(now){
+  frame=0;if(blocked()||drag||(reading()&&Math.abs(momentum)<.5)){last=0;return;}
+  const dt=last?Math.min((now-last)/1000,.05):0;last=now;
+  const duration=parseFloat(track.style.getPropertyValue('--carousel-duration'))||70;
+  offset+=(loop/duration+momentum)*dt;
+  momentum*=Math.exp(-3.2*dt);if(Math.abs(momentum)<.5)momentum=0;
+  wrap();paint();wake();
+ }
+ measure();
 })();
 
 /* Drive the actual document scroll so the custom thumb and flower follow it. */

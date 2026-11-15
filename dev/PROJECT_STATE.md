@@ -1,0 +1,31 @@
+# Portfolio audit — 2026-11-16
+
+## Baseline and publication
+- Inspected main 1ff45db214397a4d26f5ed75fe598b1a3fda2970 and dev 2dbb930d708cafca61873515c3dabfa2338fd57a.
+- Work follows AGENTS.md: develop on dev, publish its snapshot under main:dev/. Production root is a separate release.
+- Preview: https://mayabachrach.github.io/portfolio/dev/
+- No previous PROJECT_STATE.md existed on dev.
+
+## Delivered
+- Cached carousel geometry instead of repeated per-tile layout measurements. RAF stops offscreen, in background tabs, behind dialogs, for reduced motion and keyboard focus.
+- Pointer capture, cancellation, window-level release, bounded momentum and drag-click suppression. Keyboard arrows/Home/End navigate original links; loop duplicates are hidden from the accessibility tree.
+- Opening animations cancel cleanly before closing; route revisions guard interrupted closes. Focus returns to the source link, and Back/Forward are covered by regression checks.
+- Removed moving bitmap cutouts. Original artwork stays stationary; authored vector finger contours, record motion, page outlines and a hanging-star layer animate. Native SVG timelines pause offscreen/behind dialogs/in background tabs and reset for reduced motion.
+- DJ and producer faces use small vector eyes and restrained smiles inside the existing head/hair/crown contours. Panel stamps use the same art.
+- Existing palettes, handwritten lettering, source media, project descriptions, URLs and credits preserved. No outer panel outline or carousel navigation/pause buttons. Solid existing canvas behind dialogs replaces mixed-color blur. Fine-pointer cursor is a small outline, not a solid disc covering lettering.
+- Intrinsic dimensions for project images; async decoding. Footer decoding is no longer on the page-reveal critical path. Removed forced 1200ms loader minimum. Footer timer is cancelled when inactive.
+- Contact remains at least a viewport tall but may grow for accessible reflow.
+
+## Verification
+- Node 22.23.4, npm ci, build, source/resource/palette checks, Chromium browser regression suite; npm audit: 0 vulnerabilities.
+- 320x568, 390x844, 844x390, 1280x800 and 5120x2200; both themes. Intro/stars fit normal viewport and contact fills viewport. 200% text reflow, reduced motion, keyboard/focus, dialog/history races, dragging, asset loads, no-JS fallback and stalled footer asset covered.
+- Real Chromium screenshots inspected for mobile stars, both themes, panels and four moments in each of the ten action scenes.
+- A short instrumented Chromium mobile sample measured 620 carousel-tile getBoundingClientRect calls/second before and 0 after. This is an operation-count comparison, not an FPS or real-device speed claim. Loading timings were not controlled enough to claim a measured speedup.
+
+## Art-direction limitations / not final animation acceptance
+- These are restrained vector overlays on the supplied illustrations, not full redrawn character animation. Camera/typing finger excursions are subtle at phone size.
+- Graphic design, performance and animation/book-flip gestures remain limited; creative uses a join accent with stationary puzzle pieces after a moving reconstruction failed the anatomy review.
+- Storytelling page outline lifts, bends and crosses the spine, then fades over the original page stack. It does not include a fully occluding page or a hand following the sheet. A dedicated drawn sequence is still needed to meet the full requested page-turn standard.
+- Hands and original raster art can differ slightly in stroke weight. Dark bright-star legibility uses a hard canvas-colored edge, without blur; it still merits real-device review.
+- Real iOS/Safari touch, audio, pinch zoom and reduced-motion changes during an in-progress intro were not verified.
+- This preview improves engineering and removes the detached bitmap motion, but is not claimed to meet every animation-art-direction acceptance criterion. Do not promote wholesale to production on that basis.
