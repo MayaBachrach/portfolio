@@ -1202,3 +1202,15 @@ body:has(.project-page[open]) .star-action-gesture, body:has(.project-page[open]
 /* A solid existing canvas prevents backdrop blur from mixing the palette. */
 .project-page::backdrop { background:var(--page-background); backdrop-filter:none; animation:none; }
 .project-page { backdrop-filter:none; }
+
+/* Let contact grid and links reflow at narrow widths with enlarged text. */
+.contact-scene { grid-template-columns:minmax(0,1fr); }
+.contact-scene > *, .contact-scene h2 { min-width:0; max-width:100%; }
+.contact-scene .contact-links { flex-wrap:wrap; justify-content:center; max-width:100%; }
+.contact-scene .footer-static, .contact-scene .handwritten-heading { max-width:100%; }
+.copyright span { white-space:normal; overflow-wrap:anywhere; }
+
+@media (max-width:30rem) {
+  .contact-scene .skating-footer { min-height:14rem; }
+  .contact-scene .skating-traveler { bottom:max(56px, calc(7rem - 56px)); }
+}
