@@ -29,3 +29,6 @@
 - Hands and original raster art can differ slightly in stroke weight. Dark bright-star legibility uses a hard canvas-colored edge, without blur; it still merits real-device review.
 - Real iOS/Safari touch, audio, pinch zoom and reduced-motion changes during an in-progress intro were not verified.
 - This preview improves engineering and removes the detached bitmap motion, but is not claimed to meet every animation-art-direction acceptance criterion. Do not promote wholesale to production on that basis.
+
+## Follow-up reflow correction
+A 320px viewport with 200% root text exposed contact-grid min-content overflow. The contact grid now uses minmax(0,1fr), icon links wrap and copyright text can reflow. A regression assertion covers this width.

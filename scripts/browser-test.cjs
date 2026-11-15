@@ -242,6 +242,8 @@ async function run() {
     assert(await interaction.locator('.star-action-scene').evaluateAll(s=>s.every(n=>n.animationsPaused())));
     await interaction.evaluate(()=>document.documentElement.style.fontSize='200%');
     assert(await interaction.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Enlarged text reflows horizontally');
+    await interaction.setViewportSize({width:320,height:568});
+    assert(await interaction.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'320px enlarged-text reflow');
     await interaction.close();
     console.log('PASS drag suppression, immediate close, history, SVG reduced motion and 200% text');
 
