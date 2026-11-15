@@ -164,7 +164,7 @@ h1 { display: flex; align-items: baseline; gap: .22em; font-size: clamp(3.2rem, 
 .project-page { border: 0; width: min(92vw, 76rem); max-width: none; height: 88dvh; max-height: 88dvh; margin: auto; padding: 0; background: var(--panel-background); color: var(--panel-text); overflow-y: auto; box-shadow: none; transform-origin: center; }
 .project-page[open] { display: block; }
 .project-page::backdrop { background: transparent; backdrop-filter: blur(9px); animation: background-recedes 600ms cubic-bezier(.2,.8,.2,1); }
-@keyframes background-recedes { from { background: rgb(27 16 28 / 0%); backdrop-filter: blur(0); } to { background: rgb(27 16 28 / 55%); backdrop-filter: blur(8px); } }
+@keyframes background-recedes { from { backdrop-filter: blur(0); } to { backdrop-filter: blur(8px); } }
 .project-page-header { display: flex; justify-content: flex-end; position: sticky; top: 0; padding: .4rem clamp(1rem, 3vw, 3rem); background: var(--panel-background); z-index: 1; }
 .project-page-header button { display: grid; place-items: center; color: var(--close-color); background: transparent; border: 0; margin-inline-end: -.3rem; min-width: 48px; min-height: 48px; font: 800 3.3rem/1 system-ui, sans-serif; }
 .project-page-content { max-width: 90rem; margin: auto; padding: clamp(1rem, 3vw, 3rem); }
@@ -427,7 +427,7 @@ html::-webkit-scrollbar, .project-page-scroll::-webkit-scrollbar { display:none;
 /* One scrollbar only: retain scrolling while suppressing browser tracks. */
 html, body, .project-page, .project-page-scroll { scrollbar-width:none !important; }
 html::-webkit-scrollbar, body::-webkit-scrollbar, .project-page::-webkit-scrollbar, .project-page-scroll::-webkit-scrollbar { display:none !important; width:0 !important; height:0 !important; }
-.difference-cursor { position:fixed; top:0; left:0; width:25px; height:25px; border-radius:50%; background:#fff; mix-blend-mode:difference; pointer-events:none; z-index:2147483647; opacity:0; transform:translate(-50%,-50%); transition:width 180ms ease,height 180ms ease,opacity 120ms ease; }
+.difference-cursor { position:fixed; top:0; left:0; width:25px; height:25px; border-radius:50%; background:var(--page-text); mix-blend-mode:normal; pointer-events:none; z-index:2147483647; opacity:0; transform:translate(-50%,-50%); transition:width 180ms ease,height 180ms ease,opacity 120ms ease; }
 .difference-cursor.is-hovering { width:45px; height:45px; }
 @media(hover:hover) and (pointer:fine) { html.circle-cursor-active, .circle-cursor-active * { cursor:none !important; } }
 /* Separate desktop and phone composition, preserving Maya's visual language. */
@@ -1185,3 +1185,20 @@ body:has(.project-page[open]) .star-action-gesture, body:has(.project-page[open]
 @media (prefers-reduced-motion: reduce) {
   .star-action-gesture, .star-action-marks { animation: none; }
 }
+
+/* Preserve reflow when text, zoom or short windows need more space. */
+.contact-scene { height:auto; min-height:100svh; }
+.carousel-tile { touch-action:pan-y pinch-zoom; }
+.carousel-tile:focus-visible::before { outline:0; }
+.carousel-tile:focus-visible .star-label { text-decoration:underline; text-underline-offset:.2em; }
+.project-page .media-item img { height:auto; }
+
+/* A hard ink edge uses only the existing dark canvas and light ink. */
+:root[data-theme="markers"] .star-action-scene { filter:brightness(0) invert(1) drop-shadow(.65px 0 0 #151419) drop-shadow(-.65px 0 0 #151419); }
+@media (pointer:fine) { .difference-cursor { background:transparent; border:2px solid var(--page-text); } }
+
+.panel-star:has(.star-action-scene) > img { visibility:hidden; }
+
+/* A solid existing canvas prevents backdrop blur from mixing the palette. */
+.project-page::backdrop { background:var(--page-background); backdrop-filter:none; animation:none; }
+.project-page { backdrop-filter:none; }

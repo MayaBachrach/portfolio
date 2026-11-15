@@ -52,6 +52,12 @@ async function run() {
       assert(layout.overflow <= 1 && layout.headerFits && layout.starsFit && layout.contactFillsViewport, JSON.stringify({ width, layout }));
       assert(layout.scrollbarGap >= 3 && layout.alignment < 2 && layout.hasTile, JSON.stringify({ width, layout }));
       assert.equal(layout.desktopFooter, width >= 640);
+      for (const dark of [true,false]) {
+        await page.locator('#theme-toggle').click();
+        assert.equal(await page.locator('#theme-toggle').getAttribute('aria-checked'), String(dark));
+        assert(await page.evaluate(()=>document.querySelector('.carousel-window').getBoundingClientRect().bottom<=innerHeight+1));
+        assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1));
+      }
       await page.getByRole('link', { name: 'יצירת קשר', exact: true }).click();
       await page.waitForFunction(() => location.hash === '#contact' && scrollY > 0);
       assert(await page.getByRole('heading', { name: 'בואו ניצור משהו יפה ביחד :)' }).isVisible());
@@ -139,19 +145,15 @@ async function run() {
       assert(await stars.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth)));
       const target = stars.filter({ has: starPage.locator('img[src*="graphic-mayu.webp"]') });
       if (mobile) {
-        assert.equal(await target.locator('.star-action-scene').evaluate(scene => getComputedStyle(scene).filter), 'brightness(0) invert(1)');
+        assert.match(await target.locator('.star-action-scene').evaluate(scene => getComputedStyle(scene).filter), /^brightness\(0\) invert\(1\)/);
         await target.focus();
         await target.tap();
       } else {
         await target.focus();
         await starPage.keyboard.press('Enter');
       }
-      const gestures = await stars.locator('.star-action-gesture').evaluateAll(layers =>
-        layers.map(layer => ({
-          name: getComputedStyle(layer).animationName,
-          stationary: getComputedStyle(layer.closest('svg').querySelector('use')).transform === 'none',
-        })));
-      assert(gestures.every(gesture => gesture.stationary && gesture.name === (mobile ? 'none' : 'star-gesture')));
+      assert.equal(await stars.locator('.star-action-gesture').count(), 0, 'No moving bitmap cutouts');
+      assert(await stars.locator('.star-action-scene').evaluateAll(scenes => scenes.every(scene => scene.animationsPaused())), 'Dialog suspends native SVG timelines');
       const panel = starPage.locator('#project-page');
       await panel.waitFor({ state: 'visible' });
       assert.equal(await panel.getAttribute('data-project'), 'graphic');
@@ -207,10 +209,41 @@ async function run() {
       };
     });
     await ready(touch, base);
-    await touch.waitForFunction(() => document.querySelector('.carousel-tile').style.getPropertyValue('--reading-strength'));
+    await touch.waitForTimeout(800);
     assert.equal(await touch.evaluate(() => window.duplicateCarouselReads), 0);
     await touch.close();
-    console.log('PASS touch carousel reads each tile once per frame');
+    console.log('PASS touch carousel avoids repeated tile layout reads');
+
+    const interaction = await browser.newPage({viewport:{width:390,height:844},hasTouch:true});
+    await ready(interaction,base);
+    const transform = () => interaction.locator('#carousel-track').evaluate(n=>n.style.transform);
+    const beforeDrag = await transform();
+    await interaction.mouse.move(230,480);
+    await interaction.mouse.down();
+    await interaction.mouse.move(75,480,{steps:12});
+    await interaction.mouse.up();
+    await interaction.waitForTimeout(200);
+    assert.notEqual(await transform(),beforeDrag);
+    assert.equal(new URL(interaction.url()).hash,'','Drag must not open a project');
+    await interaction.keyboard.press('Tab');
+    const source = interaction.locator('.carousel-tile:not([aria-hidden])').nth(2);
+    await source.focus();
+    await interaction.keyboard.press('Enter');
+    await interaction.locator('#project-page').waitFor({state:'visible'});
+    await interaction.keyboard.press('Escape');
+    await interaction.locator('#project-page').waitFor({state:'hidden'});
+    await interaction.waitForFunction(()=>!location.hash);
+    assert(await source.evaluate(n=>n===document.activeElement));
+    await interaction.goForward();
+    await interaction.locator('#project-page').waitFor({state:'visible'});
+    await interaction.goBack();
+    await interaction.locator('#project-page').waitFor({state:'hidden'});
+    await interaction.emulateMedia({reducedMotion:'reduce'});
+    assert(await interaction.locator('.star-action-scene').evaluateAll(s=>s.every(n=>n.animationsPaused())));
+    await interaction.evaluate(()=>document.documentElement.style.fontSize='200%');
+    assert(await interaction.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Enlarged text reflows horizontally');
+    await interaction.close();
+    console.log('PASS drag suppression, immediate close, history, SVG reduced motion and 200% text');
 
     const noJs = await browser.newPage({ javaScriptEnabled: false });
     await ready(noJs, base);
@@ -223,7 +256,7 @@ async function run() {
     await slow.route('**/skating-cycle-1.webp', () => {});
     await ready(slow, base);
     assert(await slow.locator('main').isVisible());
-    await slow.waitForFunction(() => window.portfolioLoadHistory.read().at(-1)?.assetWaitTimedOut === true);
+    assert.equal(await slow.evaluate(() => window.portfolioLoadHistory.read().at(-1)?.assetWaitTimedOut), false); 
     await slow.close();
     console.log('PASS stalled asset does not block the page');
   } finally { await browser.close(); }

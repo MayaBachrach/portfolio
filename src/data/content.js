@@ -32,6 +32,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/illustrations/dj-mayu.png",
+        "width": 736,
+        "height": 736,
         "alt": "איור DJ Mayu",
         "caption": "DJ Mayu",
         "tags": [
@@ -55,6 +57,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/lobby-2.webp",
+        "width": 960,
+        "height": 1280,
         "alt": "תמונת אווירה למשבצת הקריאייטיב",
         "tags": [
           "קריאייטיב",
@@ -113,6 +117,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/lobby-3.webp",
+        "width": 1280,
+        "height": 960,
         "alt": "תפאורת מסגרות ירוקות בלובי",
         "tags": [
           "תפאורה",
@@ -123,6 +129,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/lobby-2.webp",
+        "width": 960,
+        "height": 1280,
         "alt": "מיצג אדום ולב מבלונים",
         "tags": [
           "תפאורה",
@@ -133,6 +141,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/lobby-1.webp",
+        "width": 960,
+        "height": 1280,
         "alt": "מיצג עם בלונים ודמויות בלובי",
         "tags": [
           "תפאורה",
@@ -154,6 +164,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-6.webp",
+        "width": 720,
+        "height": 960,
         "alt": "מסגרת תפאורה מעוטרת בעלים",
         "tags": [
           "תפאורה",
@@ -164,6 +176,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-5.webp",
+        "width": 720,
+        "height": 960,
         "alt": "סדנת העבודה",
         "tags": [
           "תפאורה",
@@ -174,6 +188,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-4.webp",
+        "width": 720,
+        "height": 960,
         "alt": "חלקי תפאורה בסדנה",
         "tags": [
           "תפאורה",
@@ -184,6 +200,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-3.webp",
+        "width": 720,
+        "height": 960,
         "alt": "קישוט ידית עץ",
         "tags": [
           "תפאורה",
@@ -194,6 +212,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-10.webp",
+        "width": 720,
+        "height": 960,
         "alt": "חיבור באביזר צהוב",
         "tags": [
           "תפאורה",
@@ -204,6 +224,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-7.webp",
+        "width": 720,
+        "height": 960,
         "alt": "פין ושרשרת במסגרת",
         "tags": [
           "תפאורה",
@@ -214,6 +236,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-8.webp",
+        "width": 720,
+        "height": 960,
         "alt": "רצועת חיבור באביזר",
         "tags": [
           "תפאורה",
@@ -224,6 +248,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-1.webp",
+        "width": 720,
+        "height": 960,
         "alt": "עבודה על כובע",
         "tags": [
           "תפאורה",
@@ -234,6 +260,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/set-2.webp",
+        "width": 720,
+        "height": 960,
         "alt": "עבודה על אביזר מקופל",
         "tags": [
           "תפאורה",
@@ -282,6 +310,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/illustrations/dj-frame-2.svg",
+        "width": 800,
+        "height": 800,
         "alt": "DJ Mayu — פריים מתוך האיור",
         "tags": [
           "איור",
@@ -306,6 +336,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/illustrations/dj-mayu.png",
+        "width": 736,
+        "height": 736,
         "alt": "DJ Mayu — איור של דמות מתקלטת",
         "caption": "DJ Mayu",
         "tags": [
@@ -317,6 +349,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/branding/picky.png",
+        "width": 128,
+        "height": 128,
         "alt": "האייקון של PICKY",
         "caption": "PICKY",
         "link": "https://github.com/MayaBachrach/picky",
@@ -343,6 +377,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/branding/picky.png",
+        "width": 128,
+        "height": 128,
         "alt": "PICKY — תמונה למשבצת הפיתוח",
         "tags": [
           "פיתוח אפליקציות",
@@ -365,6 +401,8 @@ const projects = [
       {
         "type": "image",
         "src": "./assets/images/social-1.webp",
+        "width": 360,
+        "height": 640,
         "alt": "תמונת אווירה למשבצת הסטוריטלינג",
         "tags": [
           "סטוריטלינג",
@@ -376,18 +414,6 @@ const projects = [
 ];
 
 
-const starActions = {
-  "social": {"cut":"M141 143L156 139 171 146 170 160 151 163 137 159Z","pivot":[143,156],"travel":[0,2.7],"angle":3,"marks":"M197 137l10-8m-8 14l13-2m-15 8l11 5","duration":1550},
-  "graphic": {"cut":"M74 110L92 104 104 113 100 130 115 139 109 159 89 158 78 172 69 171 69 152Z","pivot":[106,147],"travel":[5,1],"angle":-6,"marks":"M78 167q7-3 15 0l6 2m-19 2l16 4","duration":1750},
-  "performance": {"cut":"M103 67L127 65 130 79 119 98 101 107 87 109 86 100 96 87Z","pivot":[89,103],"travel":[3,-2],"angle":-7,"marks":"M123 63l6-9m-1 14l11-4m-10 10l10 2","duration":1420},
-  "creative": {"cut":"M129 198L163 193 170 185 190 184 197 204 187 229 133 237 113 229 115 210Z","pivot":[175,202],"travel":[-7,0],"angle":-4,"marks":"M116 201l-1-8m4 10l4-7m-12 7l-7-4","duration":1750},
-  "set-design": {"cut":"M84 145L89 145 92 155 95 159 91 168 81 168 78 160 82 153Z","pivot":[86,146],"travel":[0,0],"angle":26,"marks":"M100 154l6-5m-5 10l7-1","duration":1540},
-  "animation": {"cut":"M137 110L149 97 169 98 170 116 152 128 143 122Z","pivot":[145,118],"travel":[-3,-1],"angle":-18,"marks":"M168 98q4-8 8-10m-5 14l10-4","duration":1040},
-  "app-development": {"cut":"M101 167L118 163 128 164 132 174 117 182 102 182 98 177Z","pivot":[123,170],"travel":[-2,3],"angle":-6,"marks":"M70 149l8 10-6-1-3 5z M66 148l-4-3m5 8l-4 2","duration":1500},
-  "storytelling": {"cut":"M129 125Q148 109 173 105L178 116Q147 119 129 139L123 138Z","pivot":[129,132],"travel":[-9,-3],"angle":-25,"marks":"M132 130q-7-22-31-28 10 12 19 29m24-22q12-5 21-5","duration":1850},
-  "dj": {"cut":"M47 173L58 158 75 160 77 175 70 190 48 194 42 187Z","pivot":[69,167],"travel":[4,2],"angle":-9,"marks":"M45 204q12 10 30 4l-5-4m11-11q-11-5-23-2","duration":1150},
-  "producer": {"cut":"M132 140L144 130 157 131 166 139 161 153 146 156 133 151Z","pivot":[151,136],"travel":[1,3],"angle":7,"marks":"M150 164l4 5m6-7l7 3m-10-20l4-6","duration":1230},
-};
 
-window.PORTFOLIO_CONTENT = { carouselItems, carouselSettings, projects, starActions };
+window.PORTFOLIO_CONTENT = { carouselItems, carouselSettings, projects };
 })();
