@@ -190,10 +190,17 @@ function showRoute() {
   catch { return; }
 
   const project = projects.find(item => item.id === value);
+  const stamp = dialog.querySelector(".panel-star");
+  stamp.hidden = !project || kind !== "project";
   let media;
   if (kind === "project" && project) {
     dialog.dataset.project = project.id;
     updatePanelAccent();
+    const tile = openingStar || carousel.querySelector('a[href="#project/' + project.id + '"]');
+    if (tile) {
+      stamp.style.setProperty("--stamp-shape", tile.style.getPropertyValue("--star-shape"));
+      stamp.querySelector("img").src = tile.querySelector("img").src;
+    }
     window.renderPortfolioLettering(projectTitle, project.title);
     document.querySelector("#project-description").textContent = project.description;
     renderTags(document.querySelector("#project-tags"), project.tags);
@@ -372,7 +379,7 @@ function renderCarousel() {
           let step = 0;
           const last = layers.length - 1;
           frameTimers.push(setInterval(() => {
-            if (document.hidden || reducedMotion.matches || motionPaused || dialog.open) return;
+            if (document.hidden || reducedMotion.matches || dialog.open) return;
             step = (step + 1) % (last * 2);
             const frame = step <= last ? step : last * 2 - step;
             layers.forEach((image, index) => image.style.visibility = index === frame ? "visible" : "hidden");
@@ -392,17 +399,8 @@ function renderCarousel() {
 
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const carousel = document.querySelector(".carousel");
-const pauseStars = document.querySelector("#pause-stars");
-let motionPaused = false;
-pauseStars.addEventListener("click", () => {
-  motionPaused = !motionPaused;
-  updateCarouselMotion();
-});
-
 function updateCarouselMotion() {
-  const paused = reducedMotion.matches || document.hidden || motionPaused;
-  pauseStars.disabled = reducedMotion.matches;
-  pauseStars.textContent = reducedMotion.matches ? "תנועה מושהית" : motionPaused ? "חידוש תנועה" : "השהיית תנועה";
+  const paused = reducedMotion.matches || document.hidden;
   carousel.classList.toggle("is-paused", paused);
   carousel.querySelectorAll("video").forEach(video => {
     if (paused) video.pause();
@@ -567,7 +565,6 @@ revealPreparedPage();
  let offset=0, last=0, focusCheck=0, drag=null, suppressClick=false, speed=1, momentum=0;
  const wrap=()=>{const width=track.scrollWidth/2;if(width)offset=((offset%width)+width)%width;};
  const paint=()=>track.style.transform="translate3d("+(-offset)+"px,0,0)";
- const stars = [...track.querySelectorAll(".carousel-tile")];
  const centerOf = rect => rect.left + rect.width / 2;
  function centerStar(tile) {
   momentum = 0;
@@ -578,19 +575,6 @@ revealPreparedPage();
  viewport.addEventListener("focusin", event => {
   if (event.target.matches(".carousel-tile:focus-visible")) centerStar(event.target);
  });
- function stepStar(step) {
-  const center = centerOf(viewport.getBoundingClientRect());
-  const distances = stars.map(tile => Math.abs(centerOf(tile.getBoundingClientRect()) - center));
-  const closest = distances.indexOf(Math.min(...distances)) % (stars.length / 2);
-  const count = stars.length / 2;
-  centerStar(stars[(closest + step + count) % count]);
-  wrap();
-  paint();
-  motionPaused = true;
-  updateCarouselMotion();
- }
- document.querySelector("#previous-star").addEventListener("click", () => stepStar(-1));
- document.querySelector("#next-star").addEventListener("click", () => stepStar(1));
  viewport.addEventListener("pointerdown",e=>{
   if(e.button!==0)return;
   momentum=0;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,time:e.timeStamp,velocity:0,moved:false};
@@ -628,12 +612,12 @@ revealPreparedPage();
    }
 
   }
-  const paused=document.hidden||reducedMotion.matches||motionPaused||dialog.open||track.querySelector(":focus-visible")||(!touch.matches&&track.matches(":hover"))||!!drag;
+  const paused=document.hidden||reducedMotion.matches||dialog.open||track.querySelector(":focus-visible")||(!touch.matches&&track.matches(":hover"))||!!drag;
   readingStrength=Number(track.querySelector(".is-reading")?.style.getPropertyValue("--reading-strength")||0);
   const target=1-.45*readingStrength;speed+=(target-speed)*Math.min(1,dt*9);
   const loop=track.scrollWidth/2;
   if(!paused&&loop){const duration=parseFloat(track.style.getPropertyValue("--carousel-duration"))||70;offset+=loop/duration*dt*speed;wrap();paint();}
-  if(!document.hidden&&!reducedMotion.matches&&!motionPaused&&!dialog.open&&!drag&&Math.abs(momentum)>.5){offset+=momentum*dt;momentum*=Math.exp(-3.2*dt);wrap();paint();}
+  if(!document.hidden&&!reducedMotion.matches&&!dialog.open&&!drag&&Math.abs(momentum)>.5){offset+=momentum*dt;momentum*=Math.exp(-3.2*dt);wrap();paint();}
   requestAnimationFrame(tick);
  }
  requestAnimationFrame(tick);

@@ -25,6 +25,6 @@ npm audit
 
 ## Known limits and next steps
 - Chromium viewport tests do not cover real iOS/Safari audio, touch or pinch zoom. Audio may require a tap. Verify on a real phone before release.
-- The star carousel has a pause control and honors the OS reduced-motion preference.
+- The star carousel honors the OS reduced-motion preference.
 - A deliberately short loader still waits for critical art, with a deadline for stalled assets. Track real-device loading with the local load history before changing animation assets. Consider loading footer frames on approach instead of at startup.
 - Preview publishing is an explicit snapshot step. Keep production release separate.
