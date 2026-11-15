@@ -134,10 +134,12 @@ async function run() {
       const stars = starPage.locator('.carousel-tile:not([tabindex="-1"])');
       const ids = await stars.evaluateAll(links => [...new Set(links.map(link => link.hash))]);
       assert.equal(ids.length, 9);
-      assert.equal(await stars.locator('img').count(), 30);
+      assert.equal(await stars.locator('img').count(), 14);
+      assert.equal(await stars.and(starPage.locator('[data-movement]')).count(), 8);
       assert(await stars.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth)));
-      const target = stars.filter({ has: starPage.locator('img[src*="graphic-frame-1"]') });
+      const target = stars.filter({ has: starPage.locator('img[src*="graphic-mayu.webp"]') });
       if (mobile) {
+        assert.equal(await target.locator('img').evaluate(image => getComputedStyle(image).filter), 'brightness(0) invert(1)');
         await target.focus();
         await target.tap();
       } else {
@@ -179,7 +181,7 @@ async function run() {
       }
       await starPage.close();
     }
-    console.log('PASS nine star destinations, 30 decoded frames, keyboard/touch, focus restoration and reduced motion');
+    console.log('PASS nine star destinations, 14 decoded images, keyboard/touch, focus restoration and reduced motion');
 
 
     const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
