@@ -119,6 +119,65 @@ async function run() {
     await race.close();
     console.log('PASS dialog route survives an interrupted close');
 
+    for (const mobile of [false, true]) {
+      const starPage = await browser.newPage({
+        viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 },
+        hasTouch: mobile,
+        reducedMotion: mobile ? 'reduce' : 'no-preference',
+        colorScheme: mobile ? 'dark' : 'light',
+      });
+      const errors = [];
+      starPage.on('pageerror', error => errors.push(error.message));
+      await ready(starPage, base);
+      const stars = starPage.locator('.carousel-tile:not([tabindex="-1"])');
+      const ids = await stars.evaluateAll(links => [...new Set(links.map(link => link.hash))]);
+      assert.equal(ids.length, 9);
+      assert.equal(await stars.locator('img').count(), 30);
+      assert(await stars.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth)));
+      const target = stars.filter({ has: starPage.locator('img[src*="graphic-frame-1"]') });
+      if (mobile) {
+        await starPage.locator('#next-star').click();
+        await starPage.locator('#next-star').click();
+        await starPage.locator('#next-star').click();
+        const visibleGraphic = await starPage.evaluate(() => {
+          const viewport = document.querySelector('.carousel-window').getBoundingClientRect();
+          return document.elementsFromPoint(viewport.x + viewport.width / 2, viewport.y + viewport.height / 2)
+            .map(element => element.closest('.carousel-tile')).find(Boolean)?.hash;
+        });
+        assert.equal(visibleGraphic, '#project/graphic');
+        await target.tap();
+      } else {
+        await starPage.locator('#pause-stars').click();
+        await target.focus();
+        await starPage.keyboard.press('Enter');
+      }
+      const panel = starPage.locator('#project-page');
+      await panel.waitFor({ state: 'visible' });
+      assert.equal(await panel.getAttribute('data-project'), 'graphic');
+      assert.equal(await panel.locator('#project-title').getAttribute('aria-label'), await target.getAttribute('aria-label'));
+      assert(await panel.locator('figure').count() > 0);
+      const animations = await panel.evaluate(node => node.getAnimations().map(animation => animation.effect.getKeyframes()[0].transform));
+      if (mobile) assert.equal(animations.length, 0);
+      else assert(animations.some(transform => transform?.includes('scale(')));
+      assert(await panel.evaluate(node => node.getBoundingClientRect().width <= innerWidth));
+      if (process.env.PORTFOLIO_SCREENSHOTS) {
+        await starPage.waitForTimeout(600);
+        await starPage.screenshot({ path: path.join(process.env.PORTFOLIO_SCREENSHOTS, mobile ? 'panel-mobile.png' : 'panel-desktop.png') });
+      }
+      if (mobile) await panel.locator('#close-project').tap();
+      else await starPage.keyboard.press('Escape');
+      await panel.waitFor({ state: 'hidden' });
+      await starPage.waitForFunction(() => !location.hash);
+      assert.equal(await target.evaluate(node => document.activeElement === node), true);
+      assert.deepEqual(errors, []);
+      if (process.env.PORTFOLIO_SCREENSHOTS) {
+        await starPage.screenshot({ path: path.join(process.env.PORTFOLIO_SCREENSHOTS, mobile ? 'stars-mobile.png' : 'stars-desktop.png') });
+      }
+      await starPage.close();
+    }
+    console.log('PASS nine star destinations, 30 decoded frames, keyboard/touch, focus restoration and reduced motion');
+
+
     const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true, isMobile: true });
     await touch.addInitScript(() => {
       const measure = Element.prototype.getBoundingClientRect;

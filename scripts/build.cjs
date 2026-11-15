@@ -1,7 +1,7 @@
 const fs=require("node:fs"),vm=require("node:vm"),crypto=require("node:crypto");
 const read=p=>fs.readFileSync(p,"utf8");
 const ctx={window:{}};for(const p of ["src/data/content.js","src/data/lettering.js","src/data/latin-lettering.js","src/data/shapes.js"])vm.runInNewContext(read(p),ctx);
-const active=ctx.window.PORTFOLIO_CONTENT;active.projects=active.projects.filter(p=>p.id==="mix");
+const active=ctx.window.PORTFOLIO_CONTENT;
 const chars=new Set(("MAYA BACHRACH DJ "+active.projects.map(p=>p.title).join(" ")+" DJ והפקת סאונד בואו ניצור משהו יפה ביחד (:").replace(/\s/g,""));
 const glyphs=Object.fromEntries(Object.entries(ctx.window.PORTFOLIO_LETTERING).filter(([c])=>chars.has(c)));
 let app=read("src/js/cursors.js")+"\nwindow.PORTFOLIO_CONTENT="+JSON.stringify(active)+";\nwindow.PORTFOLIO_LETTERING="+JSON.stringify(glyphs)+";\nwindow.PORTFOLIO_SHAPES="+JSON.stringify(ctx.window.PORTFOLIO_SHAPES)+";\n";

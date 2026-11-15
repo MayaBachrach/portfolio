@@ -971,6 +971,93 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   transition: scale 220ms cubic-bezier(.22,1,.36,1), opacity 120ms ease;
 }
 .difference-cursor.is-hovering { scale: 1.8; }
+
+
+/* Stars are project links. Keep the label legible with or without motion. */
+.carousel-controls {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: .55rem;
+  position: relative;
+  z-index: 1;
+  direction: ltr;
+  pointer-events: auto;
+}
+.carousel-controls button {
+  min-width: 44px;
+  min-height: 44px;
+  border: 2px solid currentColor;
+  border-radius: 13px 10px 14px 11px;
+  padding-inline: .7rem;
+  background: var(--page-background);
+  color: var(--page-text);
+  font: inherit;
+}
+.carousel-controls button:disabled { opacity: .55; }
+.carousel-tile { cursor: pointer; text-decoration: none; }
+.carousel-tile .star-label {
+  color: var(--page-text);
+  opacity: 1;
+  transform: none;
+  width: 94%;
+  left: 3%;
+  direction: rtl;
+}
+.carousel-tile:focus-visible, .carousel-controls button:focus-visible, #close-project:focus-visible {
+  outline: 3px solid var(--page-text);
+  outline-offset: 4px;
+}
+.project-page {
+  background: var(--panel-background);
+  box-shadow: 0 18px 65px rgb(0 0 0 / 28%);
+}
+.project-page-header {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  background: var(--panel-background);
+}
+.project-page-header h2 {
+  background: color-mix(in srgb, var(--panel-accent) 18%, var(--panel-background));
+  color: var(--panel-text);
+  border: 2px solid var(--panel-accent);
+}
+.project-page-header button { color: var(--panel-text); }
+.project-page-header button:hover { background: var(--panel-text); color: var(--panel-background); }
+@media (prefers-reduced-motion: reduce) {
+  .carousel-tile, .carousel-tile .star-label { transition: none; }
+  .project-page::backdrop { animation: none; }
+}
+
+.carousel-tile.is-reading .star-label { opacity: 1; transform: none; }
+@media (hover: none), (pointer: coarse) {
+  .carousel-tile .star-label { opacity: 1; transform: none; }
+}
+.project-page .detail-media {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: 100%;
+  gap: clamp(1rem, 3vw, 1.8rem);
+}
+.project-page .detail-media > :only-child { grid-column: 1 / -1; }
+.project-page .media-item { width: 100%; }
+.project-page .media-item img, .project-page .media-item video {
+  background: color-mix(in srgb, var(--panel-accent) 10%, var(--panel-background));
+}
+@media (max-width: 38rem) {
+  .project-page .detail-media { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Preserve the ink and transparency of the original illustrations in dark mode. */
+:root[data-theme="markers"] .project-page .media-item img.theme-drawing {
+  filter: invert(1);
+  background: transparent;
+  mix-blend-mode: screen;
+}
+:root[data-theme="markers"] .carousel-tile[data-ink="dark"] > img { filter: none; }
+.carousel-tile:focus-visible { border-radius: 24% 29% 21% 27%; }
+
 </style>
 <noscript><style>#site-loader{display:none}.site-loading{overflow:auto}.site-loading .site-header,.site-loading main,.site-loading .contact,.intro-pending .canva-letter,.intro-pending .canva-zot,.intro-pending .name{visibility:visible}.header-controls{display:none!important}</style></noscript>
 <script>// Central design settings. Use exact palette values; do not generate extra shades.
@@ -1072,7 +1159,7 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
   });
 })();
 </script>
-<script src="./assets/runtime/app.56647ba5e7.js" defer></script>
+<script src="./assets/runtime/app.43f9d5b2d0.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#content">דילוג לתוכן</a>
@@ -1095,9 +1182,14 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
 <h1 id="intro-title"><span class="greeting" aria-hidden="true"><span><i class="canva-letter canva-he"></i><i class="canva-letter canva-yod"></i><i class="canva-letter canva-yod"></i></span></span><span class="visually-hidden">היי, </span><span class="intro-name"><span class="name-line"><span class="canva-word canva-zot" role="img" aria-label="אני"></span> <span class="name"><span class="canva-word canva-maya" role="img" aria-label="מאיה"></span></span></span></span></h1>
 <p><span>אני אוהבת פרויקטים</span> <span>מהממים מדוייקים ומרגשים</span> <span>(וצללית כחולה)</span></p>
 </div>
-<div id="gallery" class="carousel" aria-label="האיורים של מאיה">
-<div class="carousel-window"><div class="carousel-track" id="carousel-track"></div></div>
+<section id="gallery" class="carousel" aria-label="עבודות לפי תחום">
+<div class="carousel-controls">
+  <button type="button" id="previous-star" aria-label="הכוכב הקודם">‹</button>
+  <button type="button" id="pause-stars">השהיית תנועה</button>
+  <button type="button" id="next-star" aria-label="הכוכב הבא">›</button>
 </div>
+<div class="carousel-window"><div class="carousel-track" id="carousel-track"></div></div>
+</section>
 </section>
 <section class="projects-section" aria-label="הפרויקטים של מאיה">
 <div class="project-grid" id="project-grid"></div>
