@@ -43,12 +43,13 @@ async function run() {
           headerFits: header.every(item => item.left >= 0 && item.right <= innerWidth + 1) && header[0].right <= header[1].left + 1 && header[1].right <= header[2].left + 1,
           scrollbarGap: bar.left - letter.right,
           alignment: Math.abs(bar.top - letter.top - letter.height * .034),
+          contactFillsViewport: Math.abs(rect('.contact-scene').height - innerHeight) <= 1,
           starsFit: rect('.carousel-window').bottom <= innerHeight + 1,
           hasTile: !!document.querySelector('.carousel-tile'),
           desktopFooter: getComputedStyle(document.querySelector('.footer-desktop')).display !== 'none'
         };
       });
-      assert(layout.overflow <= 1 && layout.headerFits && layout.starsFit, JSON.stringify({ width, layout }));
+      assert(layout.overflow <= 1 && layout.headerFits && layout.starsFit && layout.contactFillsViewport, JSON.stringify({ width, layout }));
       assert(layout.scrollbarGap >= 3 && layout.alignment < 2 && layout.hasTile, JSON.stringify({ width, layout }));
       assert.equal(layout.desktopFooter, width >= 640);
       await page.getByRole('link', { name: 'יצירת קשר', exact: true }).click();
@@ -171,6 +172,7 @@ async function run() {
       await panel.waitFor({ state: 'hidden' });
       await starPage.waitForFunction(() => !location.hash);
       assert.equal(await target.evaluate(node => document.activeElement === node), true);
+      assert.equal(await target.evaluate(node => getComputedStyle(node).outlineStyle), 'none');
       assert.deepEqual(errors, []);
       if (process.env.PORTFOLIO_SCREENSHOTS) {
         await starPage.screenshot({ path: path.join(process.env.PORTFOLIO_SCREENSHOTS, mobile ? 'stars-mobile.png' : 'stars-desktop.png') });
