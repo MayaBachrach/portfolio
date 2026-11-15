@@ -341,7 +341,7 @@ function renderCarousel() {
       const project = projects.find(project => project.id === item.projectId);
       const tile = element("a", "carousel-tile");
       tile.href = "#project/" + project.id;
-      if (item.projectId !== "mix") tile.dataset.ink = "dark";
+      if (item.handDrawnMotion) tile.dataset.movement = item.projectId;
       tile.setAttribute("aria-haspopup", "dialog");
       tile.setAttribute("aria-controls", dialog.id);
       tile.setAttribute("aria-label", project.title);
@@ -367,6 +367,7 @@ function renderCarousel() {
       } else {
         media.alt = "";
       }
+      if (item.handDrawnMotion && group === 0 && index < carouselItems.length) frameReadiness.push(media.decode());
       // Decode once, then reveal already-loaded layers; never replace a playing frame URL.
       if (item.frames?.length > 1) {
         const layers = item.frames.map((src, frame) => {

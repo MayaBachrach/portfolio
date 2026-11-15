@@ -1,17 +1,17 @@
 (() => {
-// Each star links to an existing project and can cycle through three drawings.
+// Each star links to a project and can animate an illustration or a frame sequence.
 const carouselItems = [
   { projectId: "mix", type: "image", src: "./assets/illustrations/producer-frame-1.svg", frames: [1, 2, 3].map(frame => "./assets/illustrations/producer-frame-" + frame + ".svg"), frameDuration: 280, alt: "Music producer, illustration by Maya" },
   { projectId: "mix", type: "image", src: "./assets/illustrations/dj-mayu.png", frames: ["./assets/illustrations/dj-frame-1.svg", "./assets/illustrations/dj-frame-2.svg", "./assets/illustrations/dj-frame-3.svg"], frameDuration: 280, alt: "DJ Mayu, איור של מאיה" },
 
-  { projectId: "social", frames: [1, 2, 3].map(frame => "./assets/illustrations/social-frame-" + frame + ".svg") },
-  { projectId: "graphic", frames: [1, 2, 3].map(frame => "./assets/illustrations/graphic-frame-" + frame + ".svg") },
-  { projectId: "performance", frames: [1, 2, 3].map(frame => "./assets/illustrations/performance-frame-" + frame + ".svg") },
-  { projectId: "creative", frames: [1, 2, 3].map(frame => "./assets/illustrations/creative-frame-" + frame + ".svg") },
-  { projectId: "set-design", frames: [1, 2, 3].map(frame => "./assets/illustrations/set-design-frame-" + frame + ".svg") },
-  { projectId: "animation", frames: [1, 2, 3].map(frame => "./assets/illustrations/animation-frame-" + frame + ".svg") },
-  { projectId: "app-development", frames: [1, 2, 3].map(frame => "./assets/illustrations/app-development-frame-" + frame + ".svg") },
-  { projectId: "storytelling", frames: [1, 2, 3].map(frame => "./assets/illustrations/storytelling-frame-" + frame + ".svg") },
+  { projectId: "social", src: "./assets/illustrations/social-mayu.webp", handDrawnMotion: true },
+  { projectId: "graphic", src: "./assets/illustrations/graphic-mayu.webp", handDrawnMotion: true },
+  { projectId: "performance", src: "./assets/illustrations/performance-mayu.webp", handDrawnMotion: true },
+  { projectId: "creative", src: "./assets/illustrations/creative-mayu.webp", handDrawnMotion: true },
+  { projectId: "set-design", src: "./assets/illustrations/set-design-mayu.webp", handDrawnMotion: true },
+  { projectId: "animation", src: "./assets/illustrations/animation-mayu.webp", handDrawnMotion: true },
+  { projectId: "app-development", src: "./assets/illustrations/app-development-mayu.webp", handDrawnMotion: true },
+  { projectId: "storytelling", src: "./assets/illustrations/storytelling-mayu.webp", handDrawnMotion: true },
 ];
 const carouselSettings = { minimumTiles: 6, secondsPerTile: 7 };
 

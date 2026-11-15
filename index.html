@@ -1034,7 +1034,6 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   background: transparent;
   mix-blend-mode: screen;
 }
-:root[data-theme="markers"] .carousel-tile[data-ink="dark"] > img { filter: none; }
 .carousel-tile:focus-visible { outline: none; }
 .carousel-tile:focus-visible .star-label { border-bottom: 3px solid currentColor; }
 
@@ -1158,6 +1157,30 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   pointer-events: none;
 }
 .project-page::backdrop { background: transparent; }
+
+
+/* Match the existing artwork ink in marker mode. The illustrations carry their own alpha. */
+:root[data-theme="markers"] .panel-star img { filter: brightness(0) invert(1); }
+.carousel-tile[data-movement] > img {
+  --ink-rise: -1.4%;
+  --ink-turn: 2deg;
+  object-fit: contain;
+  padding: 7%;
+  animation: drawing-gesture 1.45s steps(1, end) infinite;
+}
+.carousel-tile[data-movement="performance"] > img { --ink-rise: -4%; --ink-turn: 4deg; animation-duration: 1.05s; }
+.carousel-tile[data-movement="graphic"] > img { --ink-turn: -2deg; animation-duration: 1.7s; }
+.carousel-tile[data-movement="animation"] > img { --ink-rise: -2.5%; --ink-turn: -3deg; animation-duration: 1.15s; }
+@keyframes drawing-gesture {
+  0%, 100% { transform: none; }
+  25%, 75% { transform: translateY(calc(var(--ink-rise) / 2)) rotate(calc(var(--ink-turn) / 2)); }
+  50% { transform: translateY(var(--ink-rise)) rotate(var(--ink-turn)); }
+}
+.carousel.is-paused .carousel-tile[data-movement] > img,
+body:has(.project-page[open]) .carousel-tile[data-movement] > img { animation-play-state: paused; }
+@media (prefers-reduced-motion: reduce) {
+  .carousel-tile[data-movement] > img { animation: none; }
+}
 </style>
 <noscript><style>#site-loader{display:none}.site-loading{overflow:auto}.site-loading .site-header,.site-loading main,.site-loading .contact,.intro-pending .canva-letter,.intro-pending .canva-zot,.intro-pending .name{visibility:visible}.header-controls{display:none!important}</style></noscript>
 <script>// Central design settings. Use exact palette values; do not generate extra shades.
@@ -1259,7 +1282,7 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
   });
 })();
 </script>
-<script src="./assets/runtime/app.43884ac3f9.js" defer></script>
+<script src="./assets/runtime/app.f54d7f90e1.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#content">דילוג לתוכן</a>
