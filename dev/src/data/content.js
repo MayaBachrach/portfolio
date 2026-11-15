@@ -1,8 +1,17 @@
 (() => {
-// Add future animation files here. Each item accepts image or video media.
+// Each star links to an existing project and can cycle through three drawings.
 const carouselItems = [
-  { type: "image", src: "./assets/illustrations/producer-frame-1.svg", frames: [1, 2, 3].map(frame => "./assets/illustrations/producer-frame-" + frame + ".svg"), frameDuration: 280, alt: "Music producer, illustration by Maya" },
-  { type: "image", src: "./assets/illustrations/dj-mayu.png", frames: ["./assets/illustrations/dj-frame-1.svg", "./assets/illustrations/dj-frame-2.svg", "./assets/illustrations/dj-frame-3.svg"], frameDuration: 280, alt: "DJ Mayu, איור של מאיה" },
+  { projectId: "mix", type: "image", src: "./assets/illustrations/producer-frame-1.svg", frames: [1, 2, 3].map(frame => "./assets/illustrations/producer-frame-" + frame + ".svg"), frameDuration: 280, alt: "Music producer, illustration by Maya" },
+  { projectId: "mix", type: "image", src: "./assets/illustrations/dj-mayu.png", frames: ["./assets/illustrations/dj-frame-1.svg", "./assets/illustrations/dj-frame-2.svg", "./assets/illustrations/dj-frame-3.svg"], frameDuration: 280, alt: "DJ Mayu, איור של מאיה" },
+
+  { projectId: "social", frames: [1, 2, 3].map(frame => "./assets/illustrations/social-frame-" + frame + ".svg") },
+  { projectId: "graphic", frames: [1, 2, 3].map(frame => "./assets/illustrations/graphic-frame-" + frame + ".svg") },
+  { projectId: "performance", frames: [1, 2, 3].map(frame => "./assets/illustrations/performance-frame-" + frame + ".svg") },
+  { projectId: "creative", frames: [1, 2, 3].map(frame => "./assets/illustrations/creative-frame-" + frame + ".svg") },
+  { projectId: "set-design", frames: [1, 2, 3].map(frame => "./assets/illustrations/set-design-frame-" + frame + ".svg") },
+  { projectId: "animation", frames: [1, 2, 3].map(frame => "./assets/illustrations/animation-frame-" + frame + ".svg") },
+  { projectId: "app-development", frames: [1, 2, 3].map(frame => "./assets/illustrations/app-development-frame-" + frame + ".svg") },
+  { projectId: "storytelling", frames: [1, 2, 3].map(frame => "./assets/illustrations/storytelling-frame-" + frame + ".svg") },
 ];
 const carouselSettings = { minimumTiles: 6, secondsPerTile: 7 };
 

@@ -5,7 +5,6 @@ const detailMedia = document.querySelector("#detail-media");
 const projectTitle = document.querySelector("#project-title");
 let previousFocus;
 let openedFromCard = false;
-let openedWithKeyboard = false;
 let openingRect;
 let openingStar;
 let panelOrigin = "translate(0, 0) scale(.2)";
@@ -81,7 +80,8 @@ function renderCards() {
     card.addEventListener("pointerenter", () => changePencilOutline(card));
     card.addEventListener("focus", () => changePencilOutline(card));
     card.addEventListener("click", event => {
-      openedWithKeyboard = event.detail === 0;
+      if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+      openingStar = null;
       previousFocus = card;
       openingRect = card.getBoundingClientRect();
       openedFromCard = true;
@@ -153,8 +153,9 @@ function stopDetailVideos() {
 }
 
 function restoreProjectFocus() {
-  if (openedWithKeyboard) previousFocus?.focus({ preventScroll: true });
-  else previousFocus?.blur();
+  previousFocus?.focus({ preventScroll: true });
+  previousFocus = openingStar = null;
+  openedFromCard = false;
 }
 
 function updatePanelAccent() {
@@ -179,6 +180,7 @@ function showRoute() {
   if (kind !== "project" && kind !== "tag") {
     stopDetailVideos();
     dialog.close();
+    panelOrigin = "translate(0, 0) scale(.2)";
     restoreProjectFocus();
     return;
   }
@@ -204,12 +206,16 @@ function showRoute() {
     document.querySelector("#project-tags").replaceChildren();
     media = [...new Map(projects.flatMap(item => item.media).filter(item => item.tags.includes(value)).map(item => [item.src, item])).values()];
   } else {
+    stopDetailVideos();
+    dialog.close();
+    restoreProjectFocus();
     return;
   }
 
   stopDetailVideos();
   detailMedia.replaceChildren(...media.map(mediaFigure));
   if (!dialog.open) {
+    panelOrigin = "translate(0, 0) scale(.2)";
     dialog.showModal();
     if (openingRect && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
       const bounds = dialog.getBoundingClientRect();
@@ -217,7 +223,7 @@ function showRoute() {
       const y = openingRect.top + openingRect.height / 2 - bounds.top - bounds.height / 2;
       panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(openingRect.width / bounds.width, openingRect.height / bounds.height)})`;
       dialog.animate([
-        { transform: panelOrigin, opacity: 0 },
+        { transform: panelOrigin, opacity: .7, borderRadius: "40%" },
         { transform: "translate(0, 0) scale(1)", opacity: 1 },
       ], { duration: 520, easing: "cubic-bezier(.22,1,.36,1)" });
     }
@@ -232,6 +238,15 @@ async function closeProject() {
   const revision = routeRevision;
   const route = location.hash;
   stopDetailVideos();
+  if (openingStar) {
+    const star = openingStar.getBoundingClientRect();
+    const panel = dialog.getBoundingClientRect();
+    if (panel.width && panel.height && star.bottom > 0 && star.top < innerHeight) {
+      const x = star.left + star.width / 2 - panel.left - panel.width / 2;
+      const y = star.top + star.height / 2 - panel.top - panel.height / 2;
+      panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(star.width / panel.width, star.height / panel.height)})`;
+    }
+  }
   if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
     const animation = dialog.animate([
       { transform: "translateY(0) scale(1)", opacity: 1 },
@@ -249,7 +264,7 @@ async function closeProject() {
   }
   if (revision !== routeRevision || route !== location.hash) return;
   dialog.close();
-  if (openedFromCard && location.hash.startsWith("#project/")) {
+  if (openedFromCard) {
     history.back();
   } else {
     history.replaceState(null, "", location.pathname + location.search);
@@ -264,6 +279,13 @@ dialog.addEventListener("cancel", event => {
   closeProject();
 });
 dialog.addEventListener("click", event => {
+  const tag = event.target.closest('a[href^="#tag/"]');
+  if (tag && openedFromCard && !event.button && !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey) {
+    event.preventDefault();
+    history.replaceState(null, "", tag.hash);
+    showRoute();
+    return;
+  }
   if (event.target !== dialog) return;
   const bounds = dialog.getBoundingClientRect();
   const outside = event.clientX < bounds.left || event.clientX > bounds.right ||
@@ -304,12 +326,22 @@ function renderCarousel() {
   const starIndices = Array.from({ length: count }, () => (previousStar = nextStarShape(previousStar)));
   for (let group = 0; group < 2; group++) {
     const set = element("div", "carousel-set");
-    set.setAttribute("aria-hidden", "true");
     for (let index = 0; index < count; index++) {
       const item = carouselItems[index % carouselItems.length];
-      const tile = element("div", "carousel-tile");
-
-      tile.setAttribute("aria-label", "DJ והפקת מוזיקה");
+      const project = projects.find(project => project.id === item.projectId);
+      const tile = element("a", "carousel-tile");
+      tile.href = "#project/" + project.id;
+      if (item.projectId !== "mix") tile.dataset.ink = "dark";
+      tile.setAttribute("aria-haspopup", "dialog");
+      tile.setAttribute("aria-controls", dialog.id);
+      tile.setAttribute("aria-label", project.title);
+      if (group || index >= carouselItems.length) tile.tabIndex = -1;
+      tile.addEventListener("click", event => {
+        if (event.button || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        previousFocus = openingStar = tile;
+        openingRect = tile.getBoundingClientRect();
+        openedFromCard = true;
+      });
       const shapeIndex = starIndices[index];
       const shape = window.PORTFOLIO_SHAPES.star[shapeIndex];
       const star = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200"><path d="${shape}" fill="white"/></svg>`;
@@ -340,7 +372,7 @@ function renderCarousel() {
           let step = 0;
           const last = layers.length - 1;
           frameTimers.push(setInterval(() => {
-            if(document.hidden || reducedMotion.matches) return;
+            if (document.hidden || reducedMotion.matches || motionPaused || dialog.open) return;
             step = (step + 1) % (last * 2);
             const frame = step <= last ? step : last * 2 - step;
             layers.forEach((image, index) => image.style.visibility = index === frame ? "visible" : "hidden");
@@ -349,7 +381,8 @@ function renderCarousel() {
       }
       tile.append(media);
       const label = element("span", "star-label star-label-" + (index % 4));
-      window.renderPortfolioLettering(label, "DJ והפקת סאונד");
+      window.renderPortfolioLettering(label, project.title);
+      label.setAttribute("aria-hidden", "true");
       tile.append(label);
       set.append(tile);
     }
@@ -359,9 +392,17 @@ function renderCarousel() {
 
 const reducedMotion = matchMedia("(prefers-reduced-motion: reduce)");
 const carousel = document.querySelector(".carousel");
+const pauseStars = document.querySelector("#pause-stars");
+let motionPaused = false;
+pauseStars.addEventListener("click", () => {
+  motionPaused = !motionPaused;
+  updateCarouselMotion();
+});
 
 function updateCarouselMotion() {
-  const paused = reducedMotion.matches || document.hidden;
+  const paused = reducedMotion.matches || document.hidden || motionPaused;
+  pauseStars.disabled = reducedMotion.matches;
+  pauseStars.textContent = reducedMotion.matches ? "תנועה מושהית" : motionPaused ? "חידוש תנועה" : "השהיית תנועה";
   carousel.classList.toggle("is-paused", paused);
   carousel.querySelectorAll("video").forEach(video => {
     if (paused) video.pause();
@@ -523,9 +564,33 @@ revealPreparedPage();
  const touch=matchMedia("(hover:none), (pointer:coarse)");
  let onScreen=true;
  new IntersectionObserver(([entry])=>{ onScreen=entry.isIntersecting; }).observe(viewport);
- let offset=0, last=0, focusCheck=0, drag=null, suppressClick=false, speed=1, momentum=0, focusedStar=null, focusStarted=0;
+ let offset=0, last=0, focusCheck=0, drag=null, suppressClick=false, speed=1, momentum=0;
  const wrap=()=>{const width=track.scrollWidth/2;if(width)offset=((offset%width)+width)%width;};
  const paint=()=>track.style.transform="translate3d("+(-offset)+"px,0,0)";
+ const stars = [...track.querySelectorAll(".carousel-tile")];
+ const centerOf = rect => rect.left + rect.width / 2;
+ function centerStar(tile) {
+  momentum = 0;
+  viewport.scrollLeft = 0;
+  offset += centerOf(tile.getBoundingClientRect()) - centerOf(viewport.getBoundingClientRect());
+  paint();
+ }
+ viewport.addEventListener("focusin", event => {
+  if (event.target.matches(".carousel-tile:focus-visible")) centerStar(event.target);
+ });
+ function stepStar(step) {
+  const center = centerOf(viewport.getBoundingClientRect());
+  const distances = stars.map(tile => Math.abs(centerOf(tile.getBoundingClientRect()) - center));
+  const closest = distances.indexOf(Math.min(...distances)) % (stars.length / 2);
+  const count = stars.length / 2;
+  centerStar(stars[(closest + step + count) % count]);
+  wrap();
+  paint();
+  motionPaused = true;
+  updateCarouselMotion();
+ }
+ document.querySelector("#previous-star").addEventListener("click", () => stepStar(-1));
+ document.querySelector("#next-star").addEventListener("click", () => stepStar(1));
  viewport.addEventListener("pointerdown",e=>{
   if(e.button!==0)return;
   momentum=0;drag={id:e.pointerId,x:e.clientX,y:e.clientY,lastX:e.clientX,time:e.timeStamp,velocity:0,moved:false};
@@ -543,7 +608,7 @@ revealPreparedPage();
  viewport.addEventListener("click",e=>{if(suppressClick){e.preventDefault();e.stopImmediatePropagation();}},true);
  function tick(now){
   const dt=Math.min((now-last)/1000||0,.05);last=now;
-  if (!onScreen || document.hidden || (reducedMotion.matches && !drag)) { requestAnimationFrame(tick); return; }
+  if (!onScreen || document.hidden) { requestAnimationFrame(tick); return; }
   let readingStrength=0;
   if(touch.matches){
    if(now-focusCheck>24){
@@ -563,12 +628,12 @@ revealPreparedPage();
    }
 
   }
-  const paused=document.hidden||reducedMotion.matches||dialog.open||(!touch.matches&&track.matches(":hover"))||!!drag;
+  const paused=document.hidden||reducedMotion.matches||motionPaused||dialog.open||track.querySelector(":focus-visible")||(!touch.matches&&track.matches(":hover"))||!!drag;
   readingStrength=Number(track.querySelector(".is-reading")?.style.getPropertyValue("--reading-strength")||0);
   const target=1-.45*readingStrength;speed+=(target-speed)*Math.min(1,dt*9);
   const loop=track.scrollWidth/2;
   if(!paused&&loop){const duration=parseFloat(track.style.getPropertyValue("--carousel-duration"))||70;offset+=loop/duration*dt*speed;wrap();paint();}
-  if(!document.hidden&&!reducedMotion.matches&&!dialog.open&&!drag&&Math.abs(momentum)>.5){offset+=momentum*dt;momentum*=Math.exp(-3.2*dt);wrap();paint();}
+  if(!document.hidden&&!reducedMotion.matches&&!motionPaused&&!dialog.open&&!drag&&Math.abs(momentum)>.5){offset+=momentum*dt;momentum*=Math.exp(-3.2*dt);wrap();paint();}
   requestAnimationFrame(tick);
  }
  requestAnimationFrame(tick);
