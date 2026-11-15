@@ -133,7 +133,9 @@ function mediaFigure(item) {
     media.alt = item.alt;
     media.loading = "lazy";
   }
-  figure.append(media);
+  const sheet = element("div", "project-media-sheet");
+  sheet.append(media);
+  figure.append(sheet);
   if (item.caption) {
     const caption = element("figcaption");
     const text = element(item.link ? "a" : "span", "", item.caption);
@@ -236,6 +238,7 @@ function showRoute() {
     }
     openingRect = null;
   }
+  detailMedia.querySelectorAll(".project-media-sheet").forEach(sheet => changePencilOutline(sheet, "--panel-accent"));
   dialog.querySelector(".project-page-scroll").scrollTop = 0;
   projectTitle.focus({ preventScroll: true });
 }

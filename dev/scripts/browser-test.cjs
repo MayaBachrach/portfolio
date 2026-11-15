@@ -148,6 +148,16 @@ async function run() {
       assert.equal(await panel.getAttribute('data-project'), 'graphic');
       assert.equal(await panel.locator('#project-title').getAttribute('aria-label'), await target.getAttribute('aria-label'));
       assert(await panel.locator('figure').count() > 0);
+      assert(await panel.evaluate(node => {
+        const palette = window.PORTFOLIO_CONFIG.palettePresets[document.documentElement.dataset.palette];
+        const frames = [...node.querySelectorAll('.project-media-sheet > .pencil-frame path')];
+        const accent = getComputedStyle(node).getPropertyValue('--panel-accent').trim().toUpperCase();
+        return palette.includes(accent) && frames.length > 0 &&
+          frames.every(path => path.getAttribute('fill').toUpperCase() === accent);
+      }));
+      assert(await panel.locator('.media-item img').evaluateAll(images =>
+        images.every(image => getComputedStyle(image).backgroundColor === 'rgba(0, 0, 0, 0)')));
+
       const animations = await panel.evaluate(node => node.getAnimations().map(animation => animation.effect.getKeyframes()[0].transform));
       if (mobile) assert.equal(animations.length, 0);
       else assert(animations.some(transform => transform?.includes('scale(')));
