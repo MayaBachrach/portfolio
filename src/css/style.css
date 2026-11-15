@@ -963,27 +963,6 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 
 
 /* Stars are project links. Keep the label legible with or without motion. */
-.carousel-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: .55rem;
-  position: relative;
-  z-index: 1;
-  direction: ltr;
-  pointer-events: auto;
-}
-.carousel-controls button {
-  min-width: 44px;
-  min-height: 44px;
-  border: 2px solid currentColor;
-  border-radius: 13px 10px 14px 11px;
-  padding-inline: .7rem;
-  background: var(--page-background);
-  color: var(--page-text);
-  font: inherit;
-}
-.carousel-controls button:disabled { opacity: .55; }
 .carousel-tile { cursor: pointer; text-decoration: none; }
 .carousel-tile .star-label {
   color: var(--page-text);
@@ -993,7 +972,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   left: 3%;
   direction: rtl;
 }
-.carousel-tile:focus-visible, .carousel-controls button:focus-visible, #close-project:focus-visible {
+.carousel-tile:focus-visible, #close-project:focus-visible {
   outline: 3px solid var(--page-text);
   outline-offset: 4px;
 }
@@ -1047,3 +1026,95 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 :root[data-theme="markers"] .carousel-tile[data-ink="dark"] > img { filter: none; }
 .carousel-tile:focus-visible { border-radius: 24% 29% 21% 27%; }
 
+
+
+/* Keep the portfolio in the first viewport, including the lettering above each star. */
+.hero { padding-block: clamp(.5rem, 4svh, 2.75rem) 0; }
+#intro-title {
+  block-size: clamp(3.75rem, min(10vw, 16svh), 11.2rem);
+  min-block-size: 0;
+}
+.hero-intro > p { margin-block-start: clamp(.5rem, 2.3svh, 1.1rem); }
+.carousel {
+  margin-block-start: clamp(.4rem, 2svh, 1.25rem);
+  --carousel-size: min(68vw, 24vw, 24rem, 42svh);
+}
+.carousel-window { padding-block: calc(var(--carousel-size) * .28 + 10px) 1rem; }
+.carousel-tile .star-label { bottom: calc(100% + 5px); }
+.contact-scene { height: clamp(22rem, 63svh, 39rem); min-height: 0; }
+@media (max-width: 48rem) {
+  .carousel { --carousel-size: min(68vw, 22rem, 44svh); }
+}
+@media (max-height: 540px) {
+  .hero { padding-block-start: .35rem; }
+  .hero-intro > p { margin-block-start: .4rem; }
+  .carousel { --carousel-size: min(58vw, 24rem, 34svh); }
+  .carousel-window { padding-block-end: .5rem; }
+}
+
+/* Use the same star cutout and hand-lettering as the link that opened the work. */
+.project-page {
+  width: min(94vw, 58rem);
+  border: 2px solid var(--panel-accent);
+  border-radius: 1.2rem .8rem 1.5rem .95rem / .8rem 1.3rem .85rem 1.2rem;
+}
+.project-page-header {
+  grid-template-columns: clamp(3.5rem, 11vw, 8rem) minmax(0, 1fr) 44px;
+  gap: clamp(.4rem, 2vw, 1.35rem);
+  padding: clamp(.6rem, 2.8vw, 1.6rem);
+  background: var(--panel-background);
+}
+.panel-star {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  transform: rotate(-8deg);
+}
+.panel-star[hidden] { display: none; }
+.panel-star::before {
+  content: "";
+  position: absolute;
+  inset: -7%;
+  z-index: -1;
+  background: var(--panel-accent);
+  mask: var(--stamp-shape) center / contain no-repeat;
+}
+.panel-star img { width: 100%; height: 100%; object-fit: contain; }
+.project-page-header h2 {
+  grid-column: 2;
+  background: none;
+  border: 0;
+  transform: rotate(-2deg);
+  isolation: isolate;
+  padding: .5rem .6rem;
+}
+.project-page-header h2::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: color-mix(in srgb, var(--panel-accent) 32%, var(--panel-background));
+  clip-path: polygon(1% 12%, 97% 1%, 100% 89%, 3% 98%);
+}
+.project-page-header h2 > .handwritten-heading {
+  width: min(49vw, 31rem);
+  height: clamp(2.25rem, 6vw, 5rem);
+}
+.project-page-header button {
+  grid-column: 3;
+  border: 0;
+  background: transparent;
+  border-radius: 32% 25% 29% 26%;
+}
+.project-page-header button svg { width: 36px; height: 36px; }
+.project-page-content { padding-block: .35rem clamp(1rem, 4vw, 2.5rem); }
+.project-page .media-item img, .project-page .media-item video {
+  border-radius: 2% 3% 2.3% 1.5% / 3% 2% 1.7% 2.4%;
+}
+@media (max-width: 38rem) {
+  .project-page .detail-media { gap: 1.2rem; }
+  .project-page-header h2 > .handwritten-heading { width: 100%; }
+}

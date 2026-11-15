@@ -43,11 +43,12 @@ async function run() {
           headerFits: header.every(item => item.left >= 0 && item.right <= innerWidth + 1) && header[0].right <= header[1].left + 1 && header[1].right <= header[2].left + 1,
           scrollbarGap: bar.left - letter.right,
           alignment: Math.abs(bar.top - letter.top - letter.height * .034),
+          starsFit: rect('.carousel-window').bottom <= innerHeight + 1,
           hasTile: !!document.querySelector('.carousel-tile'),
           desktopFooter: getComputedStyle(document.querySelector('.footer-desktop')).display !== 'none'
         };
       });
-      assert(layout.overflow <= 1 && layout.headerFits, JSON.stringify({ width, layout }));
+      assert(layout.overflow <= 1 && layout.headerFits && layout.starsFit, JSON.stringify({ width, layout }));
       assert(layout.scrollbarGap >= 3 && layout.alignment < 2 && layout.hasTile, JSON.stringify({ width, layout }));
       assert.equal(layout.desktopFooter, width >= 640);
       await page.getByRole('link', { name: 'יצירת קשר', exact: true }).click();
@@ -136,18 +137,9 @@ async function run() {
       assert(await stars.locator('img').evaluateAll(images => images.every(image => image.complete && image.naturalWidth)));
       const target = stars.filter({ has: starPage.locator('img[src*="graphic-frame-1"]') });
       if (mobile) {
-        await starPage.locator('#next-star').click();
-        await starPage.locator('#next-star').click();
-        await starPage.locator('#next-star').click();
-        const visibleGraphic = await starPage.evaluate(() => {
-          const viewport = document.querySelector('.carousel-window').getBoundingClientRect();
-          return document.elementsFromPoint(viewport.x + viewport.width / 2, viewport.y + viewport.height / 2)
-            .map(element => element.closest('.carousel-tile')).find(Boolean)?.hash;
-        });
-        assert.equal(visibleGraphic, '#project/graphic');
+        await target.focus();
         await target.tap();
       } else {
-        await starPage.locator('#pause-stars').click();
         await target.focus();
         await starPage.keyboard.press('Enter');
       }
