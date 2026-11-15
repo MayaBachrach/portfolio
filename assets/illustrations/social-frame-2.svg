@@ -1,6 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200">
-  <g fill="none" stroke="#242028" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M67 59Q99 57 133 60L136 139Q103 143 65 139Z M73 72L128 71 129 124 73 126Z M96 133L103 132 M94 85L111 98 94 111Z"/>
-    <path d="M143 84l9 -5 M144 98l12 1 M142 112l9 6" transform="rotate(0 100 100) translate(0 0)"/>
+  <g fill="none" stroke="#000" stroke-width="2.75" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M68 101Q51 98 48 86T53 66Q42 55 52 45Q61 34 73 43Q74 27 91 28Q104 27 111 42Q123 35 134 46Q143 56 136 69Q149 76 145 90Q140 104 125 103L126 112Q115 104 107 106M66 106q4-6 14-5 M80 101Q67 96 68 79Q68 61 86 55Q103 50 115 62Q129 77 117 96Q112 102 105 104 M86 74l.8 3m16-4 .7 3 M87 84q7 10 14-1 M89 48l-4-8 7 4 3-7 3 7 5-4-1 8z" transform="translate(20 20) scale(.75) rotate(0 96 104)"/>
+    <path d="M80 100q5 10 1 19l-6 19q12 7 34 1l-4-17q-3-11 0-19 M81 116q11 7 24 0m-22 12q11 6 22 0 M81 140l-7 16-11 3q-4 5 4 5l13-2 10-19m11 0 8 17 13 1q6-4-2-7l-4 1-7-16"/><path d="M70 148q-15 0-23 7m-10-7 8-3" opacity="1"/>
+    <path d="M87 116q-15 7-25 27l-9 6m52-33q9 4 17 9l15-12" transform="rotate(0 97 115)"/>
+    <path d="M132 80l23 3-2 39-24-3z M136 87l14 2-2 25-13-2z M141 116l2 .3 M159 91l8-4m-8 13 9 1" transform="translate(0 0)"/>
   </g>
 </svg>

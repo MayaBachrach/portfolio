@@ -174,7 +174,7 @@ h1 { display: flex; align-items: baseline; gap: .22em; font-size: clamp(3.2rem, 
 .contact-links { display: flex; justify-content: center; gap: clamp(1.2rem, 5vw, 3rem); margin: 1.7rem auto 0; }
 .project-page { border: 0; width: min(92vw, 76rem); max-width: none; height: 88dvh; max-height: 88dvh; margin: auto; padding: 0; background: var(--panel-background); color: var(--panel-text); overflow-y: auto; box-shadow: none; transform-origin: center; }
 .project-page[open] { display: block; }
-.project-page::backdrop { background: rgb(27 16 28 / 55%); backdrop-filter: blur(8px); animation: background-recedes 600ms cubic-bezier(.2,.8,.2,1); }
+.project-page::backdrop { background: transparent; backdrop-filter: blur(9px); animation: background-recedes 600ms cubic-bezier(.2,.8,.2,1); }
 @keyframes background-recedes { from { background: rgb(27 16 28 / 0%); backdrop-filter: blur(0); } to { background: rgb(27 16 28 / 55%); backdrop-filter: blur(8px); } }
 .project-page-header { display: flex; justify-content: flex-end; position: sticky; top: 0; padding: .4rem clamp(1rem, 3vw, 3rem); background: var(--panel-background); z-index: 1; }
 .project-page-header button { display: grid; place-items: center; color: var(--close-color); background: transparent; border: 0; margin-inline-end: -.3rem; min-width: 48px; min-height: 48px; font: 800 3.3rem/1 system-ui, sans-serif; }
@@ -426,7 +426,7 @@ h1, h2, h3, .card-title { font-family: var(--font-heading, "Heebo", system-ui, s
 .project-page-scroll::-webkit-scrollbar-thumb { background:var(--panel-accent); border-radius:999px; border:2px solid var(--panel-background); }
 .project-page-scroll::-webkit-scrollbar-track { background:var(--panel-background); border-radius:999px; }
 
-.project-page { border-radius:20px; background:color-mix(in srgb, var(--panel-background) 92%, transparent); backdrop-filter:blur(12px); }
+.project-page { border-radius:20px; background:var(--panel-background); backdrop-filter:blur(12px); }
 .project-page-header { background:transparent; }
 html, .project-page-scroll { scrollbar-width:none; }
 html::-webkit-scrollbar, .project-page-scroll::-webkit-scrollbar { display:none; }
@@ -989,7 +989,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 }
 .project-page {
   background: var(--panel-background);
-  box-shadow: 0 18px 65px rgb(0 0 0 / 28%);
+  box-shadow: none;
 }
 .project-page-header {
   position: sticky;
@@ -998,7 +998,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   background: var(--panel-background);
 }
 .project-page-header h2 {
-  background: color-mix(in srgb, var(--panel-accent) 18%, var(--panel-background));
+  background: var(--panel-background);
   color: var(--panel-text);
   border: 2px solid var(--panel-accent);
 }
@@ -1022,7 +1022,7 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 .project-page .detail-media > :only-child { grid-column: 1 / -1; }
 .project-page .media-item { width: 100%; }
 .project-page .media-item img, .project-page .media-item video {
-  background: color-mix(in srgb, var(--panel-accent) 10%, var(--panel-background));
+  background: var(--panel-background);
 }
 @media (max-width: 38rem) {
   .project-page .detail-media { grid-template-columns: minmax(0, 1fr); }
@@ -1066,8 +1066,8 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
 /* Use the same star cutout and hand-lettering as the link that opened the work. */
 .project-page {
   width: min(94vw, 58rem);
-  border: 2px solid var(--panel-accent);
-  border-radius: 1.2rem .8rem 1.5rem .95rem / .8rem 1.3rem .85rem 1.2rem;
+  border: 2px solid var(--page-text);
+  border-radius: 1.4rem .6rem 1.1rem .8rem / .65rem 1.3rem .65rem 1rem;
 }
 .project-page-header {
   grid-template-columns: clamp(3.5rem, 11vw, 8rem) minmax(0, 1fr) 44px;
@@ -1098,20 +1098,23 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   grid-column: 2;
   background: none;
   border: 0;
-  transform: rotate(-2deg);
+  justify-self: start;
+  transform: rotate(-3deg);
   isolation: isolate;
-  padding: .5rem .6rem;
+  padding: .4rem .25rem .9rem;
 }
 .project-page-header h2::before {
   content: "";
   position: absolute;
-  inset: 0;
+  inset: auto -2% .2rem 7%;
+  height: .65rem;
   z-index: -1;
-  background: color-mix(in srgb, var(--panel-accent) 32%, var(--panel-background));
-  clip-path: polygon(1% 12%, 97% 1%, 100% 89%, 3% 98%);
+  background: var(--panel-accent);
+  clip-path: polygon(0 23%, 37% 6%, 68% 23%, 98% 0, 100% 75%, 53% 100%, 28% 79%, 2% 95%);
 }
 .project-page-header h2 > .handwritten-heading {
-  width: min(49vw, 31rem);
+  width: auto;
+  max-width: 100%;
   height: clamp(2.25rem, 6vw, 5rem);
 }
 .project-page-header button {
@@ -1129,6 +1132,31 @@ body > .custom-scroll .custom-scroll-thumb { left:3px; width:var(--page-thumb-wi
   .project-page .detail-media { gap: 1.2rem; }
   .project-page-header h2 > .handwritten-heading { width: 100%; }
 }
+
+.project-page-header { align-items: center; padding-block-end: .75rem; }
+.project-page-header:not(:has(.panel-star:not([hidden]))) { grid-template-columns: minmax(0, 1fr) 44px; }
+.project-page-header:not(:has(.panel-star:not([hidden]))) h2 { grid-column: 1; }
+.project-page-header:not(:has(.panel-star:not([hidden]))) button { grid-column: 2; }
+.project-page-content { align-items: stretch; }
+.project-description { text-align: start; max-width: 55ch; }
+.project-page .detail-media { max-width: none; }
+.project-page .media-item { overflow: visible; }
+.project-page .media-item img, .project-page .media-item video { background: transparent; }
+.project-page .media-item figcaption { text-align: start; }
+.project-page .media-item figcaption a { text-underline-offset: .25em; }
+.project-page .project-media-sheet {
+  --social-frame-inner-scale: .94;
+  position: relative;
+  padding: 11%;
+}
+.project-media-sheet > .pencil-frame {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.project-page::backdrop { background: transparent; }
 </style>
 <noscript><style>#site-loader{display:none}.site-loading{overflow:auto}.site-loading .site-header,.site-loading main,.site-loading .contact,.intro-pending .canva-letter,.intro-pending .canva-zot,.intro-pending .name{visibility:visible}.header-controls{display:none!important}</style></noscript>
 <script>// Central design settings. Use exact palette values; do not generate extra shades.
@@ -1230,7 +1258,7 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
   });
 })();
 </script>
-<script src="./assets/runtime/app.bab325e946.js" defer></script>
+<script src="./assets/runtime/app.43884ac3f9.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#content">דילוג לתוכן</a>
