@@ -12,7 +12,7 @@
 - Opening animations cancel cleanly before closing; route revisions guard interrupted closes. Focus returns to the source link, and Back/Forward are covered by regression checks.
 - Removed moving bitmap cutouts. Original artwork stays stationary; authored vector finger contours, record motion, page outlines and a hanging-star layer animate. Native SVG timelines pause offscreen/behind dialogs/in background tabs and reset for reduced motion.
 - DJ and producer faces use small vector eyes and restrained smiles inside the existing head/hair/crown contours. Panel stamps use the same art.
-- Existing palettes, handwritten lettering, source media, project descriptions, URLs and credits preserved. No outer panel outline or carousel navigation/pause buttons. Solid existing canvas behind dialogs replaces mixed-color blur. Fine-pointer cursor is a small outline, not a solid disc covering lettering.
+- Existing palettes, handwritten lettering, source media, project descriptions, URLs and credits preserved. No outer panel outline or carousel navigation/pause buttons. Solid existing canvas behind dialogs replaces mixed-color blur. The original filled difference-blend cursor is preserved.
 - Intrinsic dimensions for project images; async decoding. Footer decoding is no longer on the page-reveal critical path. Removed forced 1200ms loader minimum. Footer timer is cancelled when inactive.
 - Contact remains at least a viewport tall but may grow for accessible reflow.
 
@@ -35,3 +35,8 @@ A 320px viewport with 200% root text exposed contact-grid min-content overflow. 
 
 ## User corrections — 2026-11-16
 Restored the original filled difference-blend cursor; removed the unrequested outline cursor and dark drop-shadows on drawings. Panel entrance now animates only transform/opacity, prepares media frames before motion and takes 360ms. Exit takes 280ms, begins at the currently presented pose when interrupted and holds its final pose until the dialog closes, avoiding snap-to-full-size flashes.
+
+## In-page star growth — 2026-11-16
+User approved replacing floating modal panels with a continuous star-to-rectangle expansion. The existing star path is sampled into a polygon that grows into the colored project surface. Neighboring star groups move outward without changing their relative spacing; the introduction shifts and the gallery reserves height, pushing contact down. Projects use document scrolling and nonmodal dialog semantics, with Escape, history navigation and source focus restoration. Closing reverses the same progress, including interrupted openings; long-page scroll returns during collapse. Reduced motion jumps directly to the resulting layout. No cursor, artwork sources, project content or palette changes.
+
+Visual review corrections: preserve neighboring-star spacing, prevent the hero overflow container from auto-scrolling on focus, clip incoming content to the growing silhouette, remove redundant same-color media frames inside the filled surface, and return document scroll during collapse. Chromium checks cover nonmodal semantics, reserved document space, focus/history, both themes and the existing five viewport sizes. Real iOS/Safari remains unverified.

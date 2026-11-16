@@ -1222,6 +1222,41 @@ body:has(.project-page[open]) .star-action-gesture, body:has(.project-page[open]
   .contact-scene .skating-footer { min-height:14rem; }
   .contact-scene .skating-traveler { bottom:max(56px, calc(7rem - 56px)); }
 }
+.carousel { position:relative; }
+.project-growth-surface { display:none; position:absolute; pointer-events:none; z-index:1; overflow:visible; }
+.project-expanded .project-growth-surface { display:block; }
+.project-expanded .carousel-window { position:absolute; inset:0 0 auto; width:100%; }
+.project-expanded .carousel-tile { transition:none; }
+.project-expanded .carousel-tile::before { transition:none; }
+.project-expanded .project-page {
+  position:absolute; inset:12px auto auto 50%; margin:0; margin-left:calc(min(82vw, 64rem) / -2);
+  width:min(82vw,64rem); height:auto; max-height:none; border:0; padding:clamp(1rem,3vw,2.5rem);
+  background:transparent; border-radius:0; overflow:visible; z-index:2;
+}
+.project-expanded .project-page-scroll { height:auto; max-height:none; overflow:visible; }
+.project-expanded .project-page-header { position:relative; background:transparent; padding:0 0 1.2rem; }
+.project-expanded .project-page-header h2 { background:transparent; }
+.project-expanded .project-page-header h2::before { display:none; }
+.project-expanded .project-page-content { padding:0; }
+.project-expanded .project-page > .custom-scroll { display:none; }
+body:has(.project-expanded) { overflow-x:clip; overflow-y:auto; }
+.hero-intro { transform-origin:center top; }
+@media(max-width:48rem) {
+  .project-expanded .project-page { width:88vw; margin-left:-44vw; padding:1.2rem; }
+  .project-expanded .project-page-header { gap:.5rem; }
+}
+
+body:has(dialog.project-page[open]) { overflow-x:clip; overflow-y:auto; }
+.project-expanded .project-media-sheet { padding:3%; }
+.project-expanded .project-page .detail-media > :only-child { max-width:36rem; justify-self:center; }
+.project-expanded .project-page.light-panel-ink .theme-drawing, .project-expanded .project-page.light-panel-ink .star-action-scene { filter:brightness(0) invert(1); mix-blend-mode:normal; }
+.project-expanded .project-page.dark-panel-ink .theme-drawing, .project-expanded .project-page.dark-panel-ink .star-action-scene { filter:brightness(0); mix-blend-mode:normal; }
+
+body:has(.project-expanded) { overflow-anchor:none; }
+
+.hero:has(.project-expanded) { overflow:clip; }
+
+.project-expanded .project-media-sheet > .pencil-frame { display:none; }
 </style>
 <noscript><style>#site-loader{display:none}.site-loading{overflow:auto}.site-loading .site-header,.site-loading main,.site-loading .contact,.intro-pending .canva-letter,.intro-pending .canva-zot,.intro-pending .name{visibility:visible}.header-controls{display:none!important}</style></noscript>
 <script>// Central design settings. Use exact palette values; do not generate extra shades.
@@ -1323,7 +1358,7 @@ window.addEventListener("pageshow", () => window.scrollTo({top:0,left:0,behavior
   });
 })();
 </script>
-<script src="./assets/runtime/app.a0e915f4d8.js" defer></script>
+<script src="./assets/runtime/app.ac7117ac00.js" defer></script>
 </head>
 <body id="top">
 <a class="skip-link" href="#content">דילוג לתוכן</a>

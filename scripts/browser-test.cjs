@@ -169,9 +169,11 @@ async function run() {
       assert(await panel.locator('.media-item img').evaluateAll(images =>
         images.every(image => getComputedStyle(image).backgroundColor === 'rgba(0, 0, 0, 0)')));
 
-      const animations = await panel.evaluate(node => node.getAnimations().map(animation => animation.effect.getKeyframes()[0].transform));
-      if (mobile) assert.equal(animations.length, 0);
-      else assert(animations.some(transform => transform?.includes('scale(')));
+      await starPage.waitForFunction(() => document.querySelector('#project-page').style.opacity === '1');
+      assert(await panel.evaluate(node => !node.matches(':modal')), 'Project is not an overlay');
+      assert(await starPage.evaluate(() => getComputedStyle(document.body).overflowY !== 'hidden'), 'Document remains scrollable');
+      assert(await starPage.evaluate(() => document.querySelector('#contact').getBoundingClientRect().top >= document.querySelector('#project-page').getBoundingClientRect().bottom), 'Project reserves document space');
+      assert(await starPage.locator('.project-growth-surface polygon').getAttribute('points'), 'Source star grows into the project surface');
       assert(await panel.evaluate(node => node.getBoundingClientRect().width <= innerWidth));
       if (process.env.PORTFOLIO_SCREENSHOTS) {
         await starPage.waitForTimeout(600);
