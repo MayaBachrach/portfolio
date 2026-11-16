@@ -81,6 +81,8 @@ const projects = [
       {
         "type": "video",
         "src": "./assets/videos/social-1.mp4",
+        "width": 360,
+        "height": 640,
         "poster": "./assets/images/social-1.webp",
         "alt": "סרטון סושיאל 1",
         "tags": [
@@ -92,6 +94,8 @@ const projects = [
       {
         "type": "video",
         "src": "./assets/videos/social-2.mp4",
+        "width": 360,
+        "height": 640,
         "poster": "./assets/images/social-2.webp",
         "alt": "סרטון סושיאל 2",
         "tags": [
@@ -153,6 +157,8 @@ const projects = [
       {
         "type": "video",
         "src": "./assets/videos/set-process.mp4",
+        "width": 540,
+        "height": 960,
         "poster": "./assets/images/set-poster.webp",
         "alt": "תהליך עבודה על התפאורה",
         "tags": [
@@ -285,6 +291,8 @@ const projects = [
       {
         "type": "video",
         "src": "./assets/videos/social-2.mp4",
+        "width": 360,
+        "height": 640,
         "poster": "./assets/images/social-2.webp",
         "alt": "הופעה מול מצלמה",
         "tags": [

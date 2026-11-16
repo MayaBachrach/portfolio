@@ -43,3 +43,8 @@ Visual review corrections: preserve neighboring-star spacing, prevent the hero o
 
 ## Softer motion and reliable closing — 2026-11-16
 Fixed the transparent close icon on hover. Panel header/close control stays visible while scrolling long projects. Opening and closing use a gentler quintic easing (1050/900ms), a curved surface path and gradual content reveal. The document scroll is synchronized with growth: short projects center vertically, long projects align with a 24px top margin, and closing returns to page top. Verified actual mouse close, hover visibility, long mobile-project hit target and return to scrollY=0; keyboard and reduced-motion regressions retained.
+
+## Responsive close target — 2026-11-16
+Reproduced a missed pointer press at 180ms: viewport scrolling moved the X between pointer positioning and press; previous tests waited for settled targets. The close control is now temporarily stationary during motion, outside the content clip, accepts pointer presses immediately, and retains keyboard click handling. Open/close durations reduced to 460/360ms with responsive ease-out; path sampling reduced from 100 to 48 points. Added raw held-pointer regressions at 80/180/300ms rather than relying on automation actionability waits.
+
+Also measured all three videos with ffprobe and reserved their 9:16 dimensions, preventing poster loading from changing the panel height/centering target mid-transition. Centering follows measured height during growth.

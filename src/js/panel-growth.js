@@ -3,6 +3,9 @@ window.createPanelGrowth = function (panel) {
   const gallery = document.querySelector('.carousel');
   const windowNode = gallery.querySelector('.carousel-window');
   const intro = document.querySelector('.hero-intro');
+  const contentNode = panel.querySelector('.project-page-content');
+  const closeControl = panel.querySelector('#close-project');
+  const releaseCloseControl = () => ['position','top','left','right','margin'].forEach(key=>closeControl.style.removeProperty(key));
   const ns = 'http://www.w3.org/2000/svg';
   const surface = document.createElementNS(ns, 'svg');
   surface.classList.add('project-growth-surface');
@@ -21,7 +24,7 @@ window.createPanelGrowth = function (panel) {
     const path = document.createElementNS(ns, 'path');
     path.setAttribute('d', d);
     const length = path.getTotalLength();
-    return Array.from({length: 100}, (_, i) => path.getPointAtLength(length * i / 100));
+    return Array.from({length: 48}, (_, i) => path.getPointAtLength(length * i / 48));
   }
   function measure() {
     target = { x: (gallery.clientWidth - panel.offsetWidth) / 2, y: 12,
@@ -40,7 +43,9 @@ window.createPanelGrowth = function (panel) {
     const mid = (a,b) => [(a[0]+b[0])/2,(a[1]+b[1])/2];
     const first = mid(shape[shape.length-1],shape[0]);
     polygon.setAttribute('d', 'M'+first.join(',') + shape.map((point,i)=>' Q'+point.join(',')+' '+mid(point,shape[(i+1)%shape.length]).join(',')).join('')+' Z');
-    panel.style.clipPath = p === 1 ? 'none' : 'polygon(' + shape.map(([sx,sy])=>`${x + sx*w/200 - target.x}px ${y + sy*h/200 - target.y - (1-p)*24}px`).join(',') + ')';
+    // Keep the header/close target outside the animated content clip.
+    panel.style.clipPath = 'none';
+    contentNode.style.clipPath = p === 1 ? 'none' : 'inset(0)';
     gallery.style.height = mix(baseHeight, Math.max(baseHeight, target.h + 32), p) + 'px';
     intro.style.transform = `translateX(${-Math.min(40, innerWidth * .04) * p}px) scale(${1 - .06 * p})`;
     for (const item of tiles) {
@@ -49,10 +54,13 @@ window.createPanelGrowth = function (panel) {
     }
     // The drawing and label leave with the source, then the readable project content arrives.
     source.style.opacity = String(1 - Math.min(1, p * 4));
-    const content = Math.max(0, Math.min(1, (p - .3) / .7));
-    panel.style.opacity = String(content * content * (3 - 2 * content));
-    panel.style.transform = `translateY(${(1 - p) * 24}px)`;
-    panel.style.pointerEvents = p > .7 ? 'auto' : 'none';
+    const content = Math.max(0, Math.min(1, (p - .45) / .55));
+    panel.style.opacity = p === 1 ? '1' : '.999';
+    contentNode.style.opacity = String(content * content * (3 - 2 * content));
+    panel.querySelector('.project-page-header').style.opacity = String(Math.min(1,p*4));
+    panel.style.transform = 'none';
+    panel.style.pointerEvents = 'auto';
+    contentNode.style.pointerEvents = p === 1 ? 'auto' : 'none';
   }
   function travel(to) {
     cancelAnimationFrame(frame);
@@ -60,24 +68,29 @@ window.createPanelGrowth = function (panel) {
     const scrollStart = scrollY;
     const panelTop = gallery.getBoundingClientRect().top + scrollY + target.y;
     const inset = Math.max(24, (innerHeight - Math.min(target.h, innerHeight - 48)) / 2);
-    const scrollEnd = to ? Math.max(0, panelTop - inset) : 0;
-    const from = progress, duration = motion.matches ? 0 : Math.max(320, (to ? 1050 : 900) * Math.abs(to - from));
+    let scrollEnd = to ? Math.max(0, panelTop - inset) : 0;
+    const closeRect = closeControl.getBoundingClientRect();
+    const closeTop = to ? closeRect.top + scrollStart - scrollEnd : closeRect.top;
+    Object.assign(closeControl.style,{position:'fixed',left:closeRect.left+'px',right:'auto',top:Math.max(16,Math.min(innerHeight-64,closeTop))+'px',margin:'0'});
+    const from = progress, duration = motion.matches ? 0 : Math.max(100, (to ? 460 : 360) * Math.abs(to - from));
     return new Promise(resolve => {
       finish = resolve;
       let start;
       function tick(time) {
         start ??= time;
         const t = duration ? Math.min(1, (time - start) / duration) : 1;
-        const eased = t * t * t * (t * (t * 6 - 15) + 10);
+        const eased = 1 - Math.pow(1 - t, 3);
+        if (to) scrollEnd = Math.max(0, panelTop - Math.max(24, (innerHeight - Math.min(target.h, innerHeight - 48)) / 2));
         paint(mix(from, to, eased));
         scrollTo({top:mix(scrollStart,scrollEnd,eased), behavior:"instant"});
         if (t < 1) frame = requestAnimationFrame(tick);
-        else { finish = null; resolve(true); }
+        else { finish = null; releaseCloseControl(); resolve(true); }
       }
       frame = requestAnimationFrame(tick);
     });
   }
   function reset() {
+    releaseCloseControl();
     panel.close();
     gallery.classList.remove('project-expanded');
     gallery.style.height = '';
