@@ -173,16 +173,21 @@ async function run() {
       assert(await panel.evaluate(node => !node.matches(':modal')), 'Project is not an overlay');
       assert(await starPage.evaluate(() => getComputedStyle(document.body).overflowY !== 'hidden'), 'Document remains scrollable');
       assert(await starPage.evaluate(() => document.querySelector('#contact').getBoundingClientRect().top >= document.querySelector('#project-page').getBoundingClientRect().bottom), 'Project reserves document space');
-      assert(await starPage.locator('.project-growth-surface polygon').getAttribute('points'), 'Source star grows into the project surface');
+      assert(await starPage.locator('.project-growth-surface path').getAttribute('d'), 'Source star grows into the project surface');
       assert(await panel.evaluate(node => node.getBoundingClientRect().width <= innerWidth));
       if (process.env.PORTFOLIO_SCREENSHOTS) {
         await starPage.waitForTimeout(600);
         await starPage.screenshot({ path: path.join(process.env.PORTFOLIO_SCREENSHOTS, mobile ? 'panel-mobile.png' : 'panel-desktop.png') });
       }
       if (mobile) await panel.locator('#close-project').tap();
-      else await starPage.keyboard.press('Escape');
+      else {
+        await panel.locator('#close-project').hover();
+        assert.notEqual(await panel.locator('#close-project').evaluate(n=>getComputedStyle(n).color), 'rgba(0, 0, 0, 0)', 'Close icon remains visible on hover');
+        await panel.locator('#close-project').click();
+      }
       await panel.waitFor({ state: 'hidden' });
       await starPage.waitForFunction(() => !location.hash);
+      assert.equal(await starPage.evaluate(()=>scrollY), 0, 'Closing returns to the top');
       assert.equal(await target.evaluate(node => document.activeElement === node), true);
       assert.equal(await target.evaluate(node => getComputedStyle(node).outlineStyle), 'none');
       assert.deepEqual(errors, []);

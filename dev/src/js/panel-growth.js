@@ -9,7 +9,7 @@ window.createPanelGrowth = function (panel) {
   surface.setAttribute('aria-hidden', 'true');
   surface.setAttribute('preserveAspectRatio', 'none');
   surface.setAttribute('viewBox', '0 0 200 200');
-  const polygon = document.createElementNS(ns, 'polygon');
+  const polygon = document.createElementNS(ns, 'path');
   surface.append(polygon);
   gallery.append(surface, panel);
   panel.setAttribute('aria-modal', 'false');
@@ -37,7 +37,9 @@ window.createPanelGrowth = function (panel) {
       const factor = 98 / Math.max(Math.abs(dx), Math.abs(dy), 1);
       return [mix(x, 100 + dx * factor, p),mix(y, 100 + dy * factor, p)];
     });
-    polygon.setAttribute('points', shape.map(point=>point.join(',')).join(' '));
+    const mid = (a,b) => [(a[0]+b[0])/2,(a[1]+b[1])/2];
+    const first = mid(shape[shape.length-1],shape[0]);
+    polygon.setAttribute('d', 'M'+first.join(',') + shape.map((point,i)=>' Q'+point.join(',')+' '+mid(point,shape[(i+1)%shape.length]).join(',')).join('')+' Z');
     panel.style.clipPath = p === 1 ? 'none' : 'polygon(' + shape.map(([sx,sy])=>`${x + sx*w/200 - target.x}px ${y + sy*h/200 - target.y - (1-p)*24}px`).join(',') + ')';
     gallery.style.height = mix(baseHeight, Math.max(baseHeight, target.h + 32), p) + 'px';
     intro.style.transform = `translateX(${-Math.min(40, innerWidth * .04) * p}px) scale(${1 - .06 * p})`;
@@ -47,7 +49,8 @@ window.createPanelGrowth = function (panel) {
     }
     // The drawing and label leave with the source, then the readable project content arrives.
     source.style.opacity = String(1 - Math.min(1, p * 4));
-    panel.style.opacity = String(Math.max(0, Math.min(1, (p - .68) / .32)));
+    const content = Math.max(0, Math.min(1, (p - .3) / .7));
+    panel.style.opacity = String(content * content * (3 - 2 * content));
     panel.style.transform = `translateY(${(1 - p) * 24}px)`;
     panel.style.pointerEvents = p > .7 ? 'auto' : 'none';
   }
@@ -55,16 +58,19 @@ window.createPanelGrowth = function (panel) {
     cancelAnimationFrame(frame);
     finish?.(false);
     const scrollStart = scrollY;
-    const from = progress, duration = motion.matches ? 0 : (to ? 680 : 560) * Math.abs(to - from);
+    const panelTop = gallery.getBoundingClientRect().top + scrollY + target.y;
+    const inset = Math.max(24, (innerHeight - Math.min(target.h, innerHeight - 48)) / 2);
+    const scrollEnd = to ? Math.max(0, panelTop - inset) : 0;
+    const from = progress, duration = motion.matches ? 0 : Math.max(320, (to ? 1050 : 900) * Math.abs(to - from));
     return new Promise(resolve => {
       finish = resolve;
       let start;
       function tick(time) {
         start ??= time;
         const t = duration ? Math.min(1, (time - start) / duration) : 1;
-        const eased = t * t * (3 - 2 * t);
+        const eased = t * t * t * (t * (t * 6 - 15) + 10);
         paint(mix(from, to, eased));
-        if (!to && scrollStart > savedScroll) scrollTo({top:mix(scrollStart,savedScroll,eased), behavior:"instant"});
+        scrollTo({top:mix(scrollStart,scrollEnd,eased), behavior:"instant"});
         if (t < 1) frame = requestAnimationFrame(tick);
         else { finish = null; resolve(true); }
       }
