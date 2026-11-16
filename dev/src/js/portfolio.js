@@ -173,23 +173,19 @@ function updatePanelAccent() {
   dialog.style.setProperty("--panel-accent", accent);
 }
 
-let openingAnimation;
+const panelGrowth = window.createPanelGrowth(dialog);
 let closingAnimation;
 let routeRevision = 0;
 
 function showRoute() {
   routeRevision++;
-  openingAnimation?.cancel();
-  openingAnimation = undefined;
-  closingAnimation?.cancel();
   closingAnimation = undefined;
   projectTitle.dataset.letteringDirection = document.documentElement.lang === "en" ? "ltr" : "rtl";
   const [kind, encodedValue] = location.hash.slice(1).split("/");
   if (kind !== "project" && kind !== "tag") {
     stopDetailVideos();
-    dialog.close();
-    panelOrigin = "translate(0, 0) scale(.2)";
-    restoreProjectFocus();
+    const revision = routeRevision;
+    panelGrowth.close().then(done => { if (done && revision === routeRevision) restoreProjectFocus(); });
     return;
   }
 
@@ -225,78 +221,40 @@ function showRoute() {
     media = [...new Map(projects.flatMap(item => item.media).filter(item => item.tags.includes(value)).map(item => [item.src, item])).values()];
   } else {
     stopDetailVideos();
-    dialog.close();
-    restoreProjectFocus();
+    panelGrowth.close().then(done => { if (done) restoreProjectFocus(); });
     return;
   }
 
   stopDetailVideos();
   detailMedia.replaceChildren(...media.map(mediaFigure));
   detailMedia.querySelectorAll(".project-media-sheet").forEach(sheet => changePencilOutline(sheet, "--panel-accent"));
-  if (!dialog.open) {
-    panelOrigin = "translate(0, 0) scale(.2)";
-    dialog.showModal();
-    if (openingRect && !matchMedia("(prefers-reduced-motion: reduce)").matches) {
-      const bounds = dialog.getBoundingClientRect();
-      const x = openingRect.left + openingRect.width / 2 - bounds.left - bounds.width / 2;
-      const y = openingRect.top + openingRect.height / 2 - bounds.top - bounds.height / 2;
-      panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(openingRect.width / bounds.width, openingRect.height / bounds.height)})`;
-      openingAnimation = dialog.animate([
-        { transform: panelOrigin, opacity: 0 },
-        { transform: "translate(0, 0) scale(1)", opacity: 1 },
-      ], { duration: 360, easing: "cubic-bezier(.22,1,.36,1)" });
-    }
-    openingRect = null;
-  }
-  dialog.querySelector(".project-page-scroll").scrollTop = 0;
-  projectTitle.focus({ preventScroll: true });
+  const revision = routeRevision;
+  panelGrowth.open(openingStar || carousel.querySelector('a[href="#project/' + (project?.id || '') + '"]')).then(done => {
+    if (done && revision === routeRevision) projectTitle.focus({ preventScroll: true });
+  });
+  openingRect = null;
 }
 
 async function closeProject() {
   if (closingAnimation || !dialog.open) return;
-  // Capture the presented pose before cancelling an interrupted entrance.
-  const presented = getComputedStyle(dialog);
-  const startPose = { transform: presented.transform, opacity: presented.opacity };
-  openingAnimation?.cancel();
-  openingAnimation = undefined;
   const revision = routeRevision;
   const route = location.hash;
   stopDetailVideos();
-  if (openingStar) {
-    const star = openingStar.getBoundingClientRect();
-    const panel = dialog.getBoundingClientRect();
-    if (panel.width && panel.height && star.bottom > 0 && star.top < innerHeight) {
-      const x = star.left + star.width / 2 - panel.left - panel.width / 2;
-      const y = star.top + star.height / 2 - panel.top - panel.height / 2;
-      panelOrigin = `translate(${x}px, ${y}px) scale(${Math.min(star.width / panel.width, star.height / panel.height)})`;
-    }
-  }
-  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    const animation = dialog.animate([
-      startPose,
-      { transform: panelOrigin, opacity: 0 },
-    ], { duration: 280, easing: "cubic-bezier(.4,0,.2,1)", fill: "forwards" });
-    closingAnimation = animation;
-    try {
-      await animation.finished;
-    } catch (error) {
-      if (error.name !== "AbortError") throw error;
-      return;
-    } finally {
-      if (closingAnimation === animation) closingAnimation = undefined;
-    }
-  }
-  if (revision !== routeRevision || route !== location.hash) return;
-  dialog.close();
-  dialog.getAnimations().forEach(animation => animation.cancel());
-  if (openedFromCard) {
-    history.back();
-  } else {
+  closingAnimation = panelGrowth.close();
+  const done = await closingAnimation;
+  closingAnimation = undefined;
+  if (!done || revision !== routeRevision || route !== location.hash) return;
+  if (openedFromCard) history.back();
+  else {
     history.replaceState(null, "", location.pathname + location.search);
     restoreProjectFocus();
   }
-  openedFromCard = false;
 }
+window.addEventListener('keydown', event => {
+  if (event.key === 'Escape' && dialog.open) { event.preventDefault(); closeProject(); }
+});
+window.addEventListener('resize', () => panelGrowth.refresh());
+new ResizeObserver(() => panelGrowth.refresh()).observe(detailMedia);
 
 document.querySelector("#close-project").addEventListener("click", closeProject);
 dialog.addEventListener("cancel", event => {
@@ -362,7 +320,7 @@ function renderCarousel() {
       const project = projects.find(project => project.id === item.projectId);
       const tile = element("a", "carousel-tile");
       tile.href = "#project/" + project.id;
-      tile.setAttribute("aria-haspopup", "dialog");
+      tile.setAttribute("aria-expanded", "false");
       tile.setAttribute("aria-controls", dialog.id);
       tile.setAttribute("aria-label", project.title);
       if (group || index >= carouselItems.length) {
@@ -503,6 +461,7 @@ function refreshThemeOutlines() {
   });
   updatePanelAccent();
   refreshCarouselColors();
+  panelGrowth.refresh();
   document.querySelectorAll(".project-card").forEach(card => changePencilOutline(card, "--outline-color", true));
   document.querySelectorAll(".social-icon").forEach(link => changePencilOutline(link, "--social-outline", true));
 }
