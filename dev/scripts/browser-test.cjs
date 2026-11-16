@@ -241,6 +241,7 @@ async function run() {
     await interaction.goBack();
     await interaction.locator('#project-page').waitFor({state:'hidden'});
     await interaction.emulateMedia({reducedMotion:'reduce'});
+      await interaction.waitForFunction(()=>[...document.querySelectorAll('.star-action-scene')].every(n=>n.animationsPaused()), {}, {timeout:1500});
     assert(await interaction.locator('.star-action-scene').evaluateAll(s=>s.every(n=>n.animationsPaused())));
     await interaction.evaluate(()=>document.documentElement.style.fontSize='200%');
     assert(await interaction.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1),'Enlarged text reflows horizontally');
