@@ -1246,3 +1246,12 @@ body:has(.project-expanded) { overflow-anchor:none; }
 .hero:has(.project-expanded) { overflow:clip; }
 
 .project-expanded .project-media-sheet > .pencil-frame { display:none; }
+
+/* Keep closing available and legible throughout a long in-page project. */
+.project-expanded .project-page-header { position:sticky; top:12px; z-index:3; background:var(--panel-accent); }
+.project-expanded #close-project, .project-expanded #close-project:hover, .project-expanded #close-project:focus-visible {
+  color:var(--panel-text); background:transparent; pointer-events:auto;
+}
+.project-expanded #close-project { min-width:48px; min-height:48px; }
+.project-expanded #close-project:hover { scale:1.08; }
+.project-expanded #close-project:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
