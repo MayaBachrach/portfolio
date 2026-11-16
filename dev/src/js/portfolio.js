@@ -124,6 +124,9 @@ function mediaFigure(item) {
   media.src = item.src;
   if (item.src.endsWith("/dj-mayu.png")) media.classList.add("theme-drawing");
   if (item.type === "video") {
+    media.width = item.width;
+    media.height = item.height;
+    media.style.aspectRatio = item.width + " / " + item.height;
     media.controls = true;
     media.playsInline = true;
     media.preload = "none";
@@ -256,7 +259,15 @@ window.addEventListener('keydown', event => {
 window.addEventListener('resize', () => panelGrowth.refresh());
 new ResizeObserver(() => panelGrowth.refresh()).observe(detailMedia);
 
-document.querySelector("#close-project").addEventListener("click", closeProject);
+const closeButton = document.querySelector("#close-project");
+// Act on press, before scrolling/morphing can move the target away from release.
+closeButton.addEventListener('pointerdown', event => {
+  if (event.button !== 0 || !event.isPrimary) return;
+  event.preventDefault();
+  event.stopPropagation();
+  closeProject();
+});
+closeButton.addEventListener("click", closeProject);
 dialog.addEventListener("cancel", event => {
   event.preventDefault();
   closeProject();

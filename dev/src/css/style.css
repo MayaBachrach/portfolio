@@ -1255,3 +1255,9 @@ body:has(.project-expanded) { overflow-anchor:none; }
 .project-expanded #close-project { min-width:48px; min-height:48px; }
 .project-expanded #close-project:hover { scale:1.08; }
 .project-expanded #close-project:focus-visible { outline:2px solid currentColor; outline-offset:3px; }
+
+.project-expanded #close-project, .project-expanded #close-project:hover { scale:1; transform:none; touch-action:manipulation; }
+.project-expanded .project-page-header { pointer-events:auto; }
+
+/* Clipping must not create an invisible focus-scroll container. */
+.hero { overflow:clip; }

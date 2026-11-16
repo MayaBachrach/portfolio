@@ -114,6 +114,23 @@ async function run() {
     console.log('PASS keyboard skip link, theme persistence, reload, audio state, drawing, scrollbar and project dialog');
     await page.close();
 
+    // Raw pointer presses do not wait for moving targets to settle.
+    const early = await browser.newPage({viewport:{width:1280,height:800}});
+    await ready(early, base);
+    for (const delay of [80,180,300]) {
+      const star = early.locator('.carousel-tile').nth(1);
+      await star.focus(); await early.keyboard.press('Enter');
+      await early.waitForTimeout(delay);
+      const box = await early.locator('#close-project').boundingBox();
+      await early.mouse.move(box.x+box.width/2,box.y+box.height/2);
+      await early.mouse.down(); await early.waitForTimeout(450); await early.mouse.up();
+      assert.equal(await early.locator('#project-page').evaluate(n=>n.open),false,'Close press during opening');
+      await early.waitForFunction(()=>!location.hash);
+      assert.equal(await early.evaluate(()=>scrollY),0);
+    }
+    await early.close();
+    console.log('PASS raw close presses during opening at 80, 180 and 300ms');
+
     const race = await browser.newPage();
     await ready(race, base + '#project/mix');
     await race.locator('#close-project').click();
